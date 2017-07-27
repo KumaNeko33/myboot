@@ -5,3 +5,6 @@ spring:
     username: root
     password: 123456
     driver-class-name: com.mysql.jdbc.Driver
+#    跟踪sql用的，便于调试
+  jpa:
+    show-sql: false
