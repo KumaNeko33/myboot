@@ -7,6 +7,12 @@ spring:
     throw-exception-if-no-handler-found: true
   resources:
     add-mappings: false
+#配置内嵌容器tomcat的监听端口和上下文路径
+server:
+  port: 9090
+  context-path:
+  ssl:
+    enabled: false
 management:
   security:
     enabled: false

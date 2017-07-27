@@ -1,0 +1,492 @@
+
+.welcome{
+	float:left;
+	margin-top:55px;
+	margin-left:8px;
+	display:inline;
+	color:#fff;
+	font-size:20px;
+}
+
+.topListLi{
+	/*float:left;*/
+	margin-left:60px;
+	display:inline;
+	font-size:18px;
+	color:#fff;
+}
+.pc{
+	width:52px;
+	height:33px;
+	float:left;
+	margin-top:19px;
+	overflow:hidden;
+}
+.topListLi_1{
+	float:left;
+	margin-left:14px;
+	display:inline;
+}
+.default{
+	width:60px;
+	height:60px;
+	float:left;
+	overflow:hidden;
+	border-radius:35px;
+	border:2px solid #6cbafa;
+	padding:5px;
+}
+.topListLi_2{
+	width:100px;
+	float:left;
+	margin-left:12px;
+	display:inline;
+}
+.topListLi_2 span,.topListLi_2 p{
+	float:left;
+	width:100%;
+	height:35px;
+	line-height:35px;
+	display:inline;
+}
+.topListLi_2 p{
+	font-size:16px;
+}
+.topListLi_3{
+	float:left;
+	margin-left:4px;
+	display:inline;
+	cursor:pointer;
+}
+.tc{
+	width:27px;
+	height:27px;
+	float:left;
+	margin-top:22px;
+	overflow:hidden;
+}
+.box{
+	width:100%;
+	float:left;
+	margin-top:10px;
+}
+.left{
+	width:15%;
+	float:left;
+	height:895px;
+	background:#39a2f8;
+}
+.zhgl{
+	width:100%;
+	height:92px;
+	float:left;
+	background:#038bfa;
+	font-size:18px;
+	text-align:center;
+	color:#fff;
+}
+.zhgl img{
+	width:21px;
+	height:23px;
+	margin-top:34px;
+	overflow:hidden;
+}
+.zhgl span{
+	line-height:92px;
+}
+.right{
+	width:85%;
+	float:left;
+	height:895px;
+	background:#fff;
+}
+
+
+.rightBox{
+	width:100%;
+	float:left;
+	margin-top:70px;
+}
+.rightBoxLeft{
+	width:40%;
+	float:left;
+}
+.r2,.r3,.r4{
+	display:none;
+}
+.rightBoxLeft_1{
+	max-width:640px;
+	height:auto;
+	float:left;
+	display:inline;
+}
+.rightBoxRight{
+	width:60%;
+	float:right;
+}
+.rightBoxRightHy{
+	width:100%;
+	height:40px;
+	float:left;
+	margin-top:130px;
+	text-align:center;
+	color:#4cb9fa;
+	font-size:18px;
+}
+.rightBoxRightList{
+	width:100%;
+	float:left;
+}
+.rightBoxRightListLi{
+	float:left;
+	width:100%;
+	height:58px;
+	line-height:58px;
+}
+.rightBoxRightListLi img{
+	width:18px;
+	height:21px;
+	float:left;
+	margin-top:18px;
+	margin-left:30%;
+	overflow:hidden;
+}
+.rightBoxRightListLi span{
+	width:200px;
+	height:58px;
+	float:left;
+	margin-left:15px;
+	display:inline;
+	font-size:18px;
+	color:#4d4c4c;
+	overflow:hidden;
+}
+.rightBoxRightListLi label{
+	margin-left:15px;
+	-webkit-border-radius:55px;
+    -moz-border-radius:55px;
+    border-radius:55px;
+    color:#fff;
+    background:#55c0fc;
+    font-size:14px;
+    padding:4px 10px;
+    cursor:pointer;
+}
+
+.box_2{
+	width:100%;
+	background:#2698f2;
+	float:left;
+	line-height:38px;
+	color:#fff;
+	font-size:16px;
+}
+.footer{
+	width:70%;
+	height:38px;
+	margin:0 auto;
+	text-align:center;
+}
+
+
+/*修改密码*/
+.xgmm{
+	width:369px;
+	margin:0 auto;
+}
+.xgmm_1{
+	width:100%;
+	float:left;
+}
+.xgmm_1 img{
+	width:20px;
+	height:20px;
+	float:left;
+	margin-left:115px;
+	display:inline;
+}
+.xgmm_1 span{
+	float:left;
+	margin-left:10px;
+	display:inline;
+	color:#4cb9fa;
+	font-size:16px;
+}
+
+.xgmm_2{
+	width:169px;
+	float:left;
+	margin-top:20px;
+	margin-left:100px;
+	display:inline;
+	color:#42b9ff;
+}
+
+.contentForm{
+	width:100%;
+	float:left;
+	margin-top:4px;
+}
+.inputText{
+	width:100%;
+	height:58px;
+	float:left;
+	margin-top:32px;
+	background:#f1faff;
+    -webkit-border-radius:55px;
+    -moz-border-radius:55px;
+    border-radius:55px
+}
+.inputTextImg{
+	width:23px;
+	height:25px;
+	float:left;
+	margin-left:20px;
+	margin-top:16px;
+	display:inline;
+	overflow:hidden;
+}
+.xgmmImg{
+	width:23px;
+	height:25px;
+	float:left;
+	margin-top:16px;
+	display:inline;
+	overflow:hidden;
+}
+.inputTextTxt{
+	width:260px;
+	height:56px;
+	float:left;
+	margin-left:18px;
+	display:inline;
+	border:none;
+	font-size:18px;
+	color:#b3b3b3;
+	line-height:58px;
+	background:#f1faff;
+}
+.inputText_1{
+	width:250px;
+	height:58px;
+	float:left;
+	margin-top:32px;
+	background:#f1faff;
+    -webkit-border-radius:55px;
+    -moz-border-radius:55px;
+    border-radius:55px
+}
+.inputTextTxt_1{
+	width:160px;
+	height:58px;
+	float:left;
+	margin-left:18px;
+	display:inline;
+	border:none;
+	font-size:18px;
+	color:#b3b3b3;
+	line-height:58px;
+	background:#f1faff;
+}
+.inputText_2{
+	width:100px;
+	height:40px;
+	float:right;
+	margin-top:42px;
+	background:#56c1fc;
+    -webkit-border-radius:55px;
+    -moz-border-radius:55px;
+    border-radius:55px;
+    color:#fff;
+    font-size:20px;
+    line-height:40px;
+    text-align:center;
+}
+.inputLogin{
+	width:100%;
+	height:66px;
+	float:right;
+	margin-top:20px;
+	background:#2acebb;
+    -webkit-border-radius:55px;
+    -moz-border-radius:55px;
+    border-radius:55px;
+    color:#fff;
+    font-size:22px;
+    line-height:66px;
+    text-align:center;
+}
+.inputLogin:hover{
+    color:#fff;
+    background:#11d4be;
+}
+.inputLogin:active{
+    color:#fff;
+    background:#11d4be;
+}
+button.inputLogin{
+	width:100%;
+	height:66px;
+	float:right;
+	margin-top:20px;
+	background:#2acebb;
+    -webkit-border-radius:55px;
+    -moz-border-radius:55px;
+    border-radius:55px;
+    color:#fff;
+    font-size:22px;
+    line-height:66px;
+    text-align:center;
+	border:0;
+	cursor: pointer;
+}
+
+/*修改手机号码*/
+.xgmm_3{
+	width:100%;
+	float:left;
+}
+.xgmm_3 img{
+	width:20px;
+	height:20px;
+	float:left;
+	margin-left:10px;
+	display:inline;
+}
+.xgmm_3 span{
+	float:left;
+	margin-left:10px;
+	display:inline;
+	color:#4cb9fa;
+	font-size:16px;
+}
+.inputText_22{
+	width:100px;
+	height:40px;
+	float:right;
+	margin-top:42px;
+	background:#56c1fc;
+    -webkit-border-radius:55px;
+    -moz-border-radius:55px;
+    border-radius:55px;
+    color:#fff;
+    font-size:14px;
+    line-height:40px;
+    text-align:center;
+    cursor:pointer;
+}
+.inputText_23{
+	width:100px;
+	height:56px;
+	float:right;
+	background:#e4f5fe;
+    -webkit-border-radius:55px;
+    -moz-border-radius:55px;
+    border-radius:55px;
+    color:#b3b3b3;
+    font-size:14px;
+    line-height:56px;
+    text-align:center;
+    cursor:pointer;
+}
+
+/*修改邮箱地址*/
+.inputText_24{
+	width:166px;
+	height:40px;
+	float:left;
+	margin-top:32px;
+	margin-left:101px;
+	display:inline;
+	background:#56c1fc;
+    -webkit-border-radius:55px;
+    -moz-border-radius:55px;
+    border-radius:55px;
+    color:#fff;
+    font-size:14px;
+    line-height:40px;
+    text-align:center;
+    cursor:pointer;
+}
+
+
+/*确认修改手机号*/
+.sjqr{
+	width:369px;
+	margin:0 auto;
+	display:none;
+}
+.sjqr_1{
+	width:100%;
+	float:left;
+}
+.sjqr_1 img{
+	width:146px;
+	height:119px;
+	float:left;
+	margin-left:109px;
+	display:inline;
+	overflow:hidden;
+}
+.sjqr_2{
+	width:100%;
+	float:left;
+	margin-top:20px;
+}
+.sjqr_2 img{
+	width:20px;
+	height:20px;
+	float:left;
+	margin-left:80px;
+	display:inline;
+}
+.sjqr_2 span{
+	float:left;
+	margin-left:10px;
+	display:inline;
+	color:#4cb9fa;
+	font-size:16px;
+}
+.sjqr_3{
+	width:100%;
+	float:left;
+	margin-top:20px;
+	text-align:center;
+	font-size:30px;
+	color:#42b9ff;
+}
+.sjqr_4{
+	width:100%;
+	float:left;
+	margin-top:70px;
+}
+.sjqr_5{
+	width:100%;
+	float:left;
+	margin-top:20px;
+	text-align:center;
+	color:#42b9ff;
+}
+.inputLogin_1{
+	width:150px;
+	height:66px;
+	float:left;
+	margin-left:30px;
+	display:inline;
+	background:#2acebb;
+    -webkit-border-radius:55px;
+    -moz-border-radius:55px;
+    border-radius:55px;
+    color:#fff;
+    font-size:22px;
+    line-height:66px;
+    text-align:center;
+}
+.inputLogin_1:hover{
+    color:#fff;
+    background:#11d4be;
+}
+.inputLogin_1:active{
+    color:#fff;
+    background:#11d4be;
+}

@@ -2,7 +2,7 @@
 spring:
 # 数据源配置，请修改为你项目的实际配置
   datasource:
-    url: jdbc:mysql://localhost:3306/sso
+    url: jdbc:mysql://localhost:3306/sso?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=true
     username: root
     password: 123456
     driver-class-name: com.mysql.jdbc.Driver

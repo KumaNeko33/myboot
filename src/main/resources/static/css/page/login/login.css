@@ -1,0 +1,200 @@
+
+.welcome{
+	float:left;
+	margin-top:55px;
+	margin-left:8px;
+	display:inline;
+	color:#fff;
+	font-size:20px;
+}
+.login-content{
+	width: 100%;
+}
+.contentLeft{
+	float:left;
+}
+.contentLeft img{
+	max-width:640px;
+	max-height:640px;
+	float:left;
+	overflow:hidden;
+}
+.contentRight{
+	width:369px;
+	float:right;
+}
+
+.logo_1{
+	width:100%;
+	float:left;
+}
+.logo_1 img{
+	width:117px;
+	height:65px;
+	float:left;
+	margin-left:126px;
+	display:inline;
+	overflow:hidden;
+}
+.welcome_1{
+	width:100%;
+	float:left;
+	margin-top:55px;
+	display:inline;
+	color:#fff;
+	font-size:20px;
+	text-align:center;
+}
+.contentForm{
+	width:100%;
+	float:left;
+	margin-top:4px;
+}
+.inputText{
+	width:100%;
+	height:58px;
+	float:left;
+	margin-top:32px;
+	background:#fff;
+    -webkit-border-radius:55px;
+    -moz-border-radius:55px;
+    border-radius:55px
+}
+.inputTextImg{
+	width:23px;
+	height:25px;
+	float:left;
+	margin-left:20px;
+	margin-top:16px;
+	display:inline;
+	overflow:hidden;
+}
+.inputTextTxt{
+	width:260px;
+	height:56px;
+	float:left;
+	margin-left:18px;
+	display:inline;
+	border:none;
+	font-size:18px;
+	color:#b3b3b3;
+	line-height:58px;
+}
+.inputText_1{
+	width:200px;
+	height:58px;
+	float:left;
+	margin-top:32px;
+	background:#fff;
+    -webkit-border-radius:55px;
+    -moz-border-radius:55px;
+    border-radius:55px
+}
+.inputTextTxt_1{
+	width:110px;
+	height:58px;
+	float:left;
+	margin-left:18px;
+	display:inline;
+	border:none;
+	font-size:18px;
+	color:#b3b3b3;
+	line-height:58px;
+}
+.inputText_2{
+	width:100px;
+	height:40px;
+	float:right;
+	margin-top:42px;
+	background:#fff;
+    -webkit-border-radius:55px;
+    -moz-border-radius:55px;
+    border-radius:55px;
+    color:#b4b4b4;
+    font-size:20px;
+    line-height:40px;
+    text-align:center;
+}
+
+.inputLogin:hover{
+    color:#fff;
+    background:#11d4be;
+}
+.inputLogin:active{
+    color:#fff;
+    background:#11d4be;
+}
+.nextForget{
+	width:100%;
+	height:24px;
+	line-height:24px;
+	float:left;
+	margin-top:28px;
+}
+.nextForget b{
+	width:24px;
+	height:24px;
+	float:left;
+	margin-left:10px;
+	display:inline;
+	overflow:hidden;
+	background:url(../../../img/gou_2.png) no-repeat;
+	cursor:pointer;
+}
+.nextForget b.nextForgetB{
+	background:url(../../../img/gou_1.png) no-repeat;
+}
+.nextForget span{
+	float:left;
+	margin-left:10px;
+	display:inline;
+	color:#515151;
+}
+.nextForget a{
+	display:block;
+	float:right;
+	margin-right:20px;
+}
+button.inputLogin{
+	width:100%;
+	height:66px;
+	float:right;
+	margin-top:20px;
+	background:#2acebb;
+    -webkit-border-radius:55px;
+    -moz-border-radius:55px;
+    border-radius:55px;
+    color:#fff;
+    font-size:22px;
+    line-height:66px;
+    text-align:center;
+	border:0;
+	cursor: pointer;
+}
+@media screen and (max-device-width: 480px) {
+	button.inputLogin {
+		width: 100%;
+		height: 48px;
+		float: right;
+		margin-top: 10px;
+		background: #2acebb;
+		-webkit-border-radius: 50px;
+		-moz-border-radius: 50px;
+		border-radius: 50px;
+		color: #fff;
+		font-size: 19px;
+		font-weight: 600;
+		line-height: 48px;
+		text-align: center;
+		border: 0;
+		cursor: pointer;
+	}
+	.login-content{
+		padding-left: 6%;
+		padding-right: 6%;
+	}
+
+}
+body{
+	background-color: #39a2f8;
+}

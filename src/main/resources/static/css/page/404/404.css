@@ -1,0 +1,22 @@
+.welcome{
+	float:left;
+	margin-top:55px;
+	margin-left:8px;
+	display:inline;
+	color:#fff;
+	font-size:20px;
+}
+.fhaf{
+	width:100%;
+	float:left;
+	text-align:center;
+}
+.fhaf img{
+	width:437px;
+	height:483px;
+	overflow:hidden;
+	margin-top:155px;
+}
+body{
+	background-color: #39a2f8;
+}

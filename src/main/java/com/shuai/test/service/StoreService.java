@@ -1,6 +1,6 @@
 package com.shuai.test.service;
 
-import com.shuai.test.domain.Store;
+import com.shuai.test.dto.StoreDto;
 import com.shuai.test.utils.Result;
 
 import java.util.Map;
@@ -12,5 +12,5 @@ import java.util.Map;
  * @Modified By:
  */
 public interface StoreService {
-    Result<Map<String,Long>> getPointAndRebate(Store store, Integer year, Integer month);
+    Result<Map> getPointAndRebate(StoreDto storeDto, Integer year, Integer month);
 }

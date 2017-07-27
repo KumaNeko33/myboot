@@ -1,13 +1,13 @@
 package com.shuai.test.service;
 
 import com.shuai.test.dao.StoreDao;
-import com.shuai.test.domain.Store;
+import com.shuai.test.dto.StoreDto;
 import com.shuai.test.utils.Result;
 import com.shuai.test.utils.ResultGenerator;
 import org.apache.commons.collections.CollectionUtils;
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 import javax.transaction.Transactional;
 import java.util.HashMap;
@@ -28,19 +28,21 @@ public class StoreServiceImpl implements StoreService{
 
     @Override
     @Transactional
-    public Result<Map<String,Long>> getPointAndRebate(Store store, Integer year, Integer month) {
-        Assert.isNull(store,"门店信息不能为空！");
-        HashMap<String, Long> returnMap = new HashMap<>();
+    public Result<Map> getPointAndRebate(StoreDto storeDto, Integer year, Integer month) {
+//        Assert.isNull(store,"门店信息不能为空！");
+
+        HashMap returnMap = new HashMap();
         try {
-            Long storeId = store.getStoreId();
+            Long storeId = storeDto.getStoreId();
             List<Object[]> resultList = storeDao.getPointAndRebate(storeId, year, month);
-            if(CollectionUtils.isNotEmpty(resultList)) {
-                returnMap.put("monthPoint", Long.parseLong(resultList.get(0)[0].toString()));
-                returnMap.put("monthRebate", Long.parseLong(resultList.get(0)[1].toString()));
-                returnMap.put("validQuantity", Long.parseLong(resultList.get(0)[0].toString()));
+            if (CollectionUtils.isNotEmpty(resultList)) {
+//                returnMap.put("monthPoint", Long.parseLong(resultList.get(0)[0].toString()));
+                returnMap.put("monthPoint", resultList.get(0)[0]);
+                returnMap.put("monthRebate", resultList.get(0)[1]);
+                returnMap.put("validQuantity", resultList.get(0)[2]);
             }
         } catch (Exception e) {
-            return ResultGenerator.genFailResult("获取积分和返利信息失败！错误信息：" + e.getMessage());
+            throw new ServiceException("获取积分和返利信息失败！错误信息：" + e.getMessage());
         }
         return ResultGenerator.genSuccessResult(returnMap);
     }

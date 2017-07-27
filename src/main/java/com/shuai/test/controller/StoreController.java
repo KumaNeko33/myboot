@@ -1,10 +1,11 @@
 package com.shuai.test.controller;
 
-import com.shuai.test.domain.Store;
+import com.shuai.test.dto.StoreDto;
 import com.shuai.test.service.StoreService;
 import com.shuai.test.utils.DateUtils;
 import com.shuai.test.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,13 +27,15 @@ public class StoreController {
     private StoreService storeService;
 
     @RequestMapping(value = "/month", method = RequestMethod.GET)
-    public Result<Map<String, Long>> getPointAndRebate() {
+    public Result<Map> getPointAndRebate() {
 //        Store store = storeService.getStore();
-        Store store = new Store();
-        store.setId(16L);
+        StoreDto storeDto = StoreDto.builder()
+//                .storeId(16L)
+                .build();
         Integer year = DateUtils.getYear(new Date());
         Integer month = DateUtils.getMonth(new Date());
-        Result<Map<String, Long>> pointAndRebate = storeService.getPointAndRebate(store, year, month);
+        Assert.notNull(storeDto.getStoreId(),"门店用户信息不能为空！");
+        Result<Map> pointAndRebate = storeService.getPointAndRebate(storeDto, year, month);
         return pointAndRebate;
     }
 }
