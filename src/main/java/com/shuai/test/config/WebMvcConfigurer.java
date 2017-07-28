@@ -127,6 +127,13 @@ public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
         }
     }
 
+//    @Override
+//    public void addInterceptors(InterceptorRegistry registry) {
+//        registry.addInterceptor(baseInterceptor).addPathPatterns("/qr/**");  //意思是将baseInterceptor拦截器应用于以staticPath/qr/为前缀的所有请求
+//        registry.addInterceptor(baseInterceptor).addPathPatterns("/web/**");  //意思是将baseInterceptor拦截器应用于以staticPath/web/为前缀的所有请求
+//        registry.addInterceptor(apiInterceptor).addPathPatterns("/api/**");   //意思是将apiInterceptor拦截器应用于以staticPath/api/为前缀的所有请求
+//    }
+
     private void responseResult(HttpServletResponse response, Result result) {
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Content-type", "application/json;charset=UTF-8");
