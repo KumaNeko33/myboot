@@ -1,0 +1,268 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 100px;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+body {
+    min-width: 320px;
+    margin: 0 auto;
+    word-wrap: break-word;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    background-color: #fff;
+    font-family: "Microsoft YaHei", "Helvetica Neue", Helvetica, STHeiti, "\5B8B\4F53", "Arial Narrow", HELVETICA;
+}
+
+body, html {
+    -webkit-touch-callout: none;
+    -webkit-overflow-scrolling: touch;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-size: 100%;
+    font-weight: 400;
+}
+
+img {
+    border: 0;
+    max-width: 100%;
+    height: auto;
+    vertical-align: middle
+}
+input,select{
+    border:none;
+    outline:none
+}
+textarea{
+    resize:none;
+    outline:none;
+    border:none;
+    overflow-y:hidden
+}
+ol, ul {
+    list-style: none
+}
+
+address, cite, dfn, em, i, var {
+    font-style: normal
+}
+
+a {
+    text-decoration: none
+}
+
+a:active, a:focus {
+    outline: 0
+}
+
+b, em, i {
+    font-style: normal;;
+    font-weight: normal;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0
+}
+
+article, aside, details, figcaption, figure, footer, header, main, nav, section, summary {
+    display: block;
+}
+.top{
+    width:100%;
+    height:3.59rem;
+    float:left;
+}
+
+.main_visual{height:3.59rem;border-top:1px solid #d7d7d7;overflow:hidden;position:relative;}
+.main_image{height:3.59rem;overflow:hidden;position:relative;}
+.main_image ul{width:9999px;height:3.59rem;overflow:hidden;position:absolute;top:0;left:0}
+.main_image li{float:left;width:100%;height:3.59rem;}
+.main_image li span{display:block;width:100%;height:3.59rem}
+.main_image li a{display:block;width:100%;height:3.59rem}
+.main_image li .img_1{background:url('../img/md_1.png') center top no-repeat;background-size:contain}
+.main_image li .img_2{background:url('../img/md_2.png') center top no-repeat;background-size:contain}
+.main_image li .img_3{background:url('../img/md_3.png') center top no-repeat;background-size:contain}
+.main_image li .img_4{background:url('../img/md_4.png') center top no-repeat;background-size:contain}
+.main_image li .img_5{background:url('../img/md_5.png') center top no-repeat;background-size:contain}
+div.flicking_con{position:absolute;top:3.2rem;z-index:999;width:100%;height:0.21rem;text-align:center;}
+/* div.flicking_con a{float:left;width:21px;height:21px;margin:0 0.1rem;padding:0;background:url('../img/btn_main_img.png') 0 0 no-repeat;display:block;text-indent:-1000px} */
+div.flicking_con a{float:left;display:block;overflow:hidden;width:0.12rem;height:0.12rem;margin:0 0.1rem;background:url('../img/on_2.png') no-repeat;background-size:contain}
+/* div.flicking_con a.on{background-position:0 -21px} */
+div.flicking_con a.on{background:url('../img/on_1.png') no-repeat;background-size:contain}
+/* #btn_prev,#btn_next{z-index:11111;position:absolute;display:block;width:73px!important;height:74px!important;top:50%;margin-top:-37px;display:none;}
+#btn_prev{background:url(../images/hover_left.png) no-repeat left top;left:100px;}
+#btn_next{background:url(../images/hover_right.png) no-repeat right top;right:100px;} */
+
+.box{
+    width:100%;
+    height:10rem;
+    float:left;
+    /* background:#e6e6e6 */
+}
+.contact{
+    width:100%;
+    /*height:1.61rem;*/
+    float:left;
+    background:#fff;
+    position:relative
+}
+.contact p{
+    width:90%;
+    /*height:0.55rem;*/
+    float:left;
+    margin-left:0.44rem;
+    display:inline;
+    line-height:0.55rem;
+}
+.contact p span{
+    float:left;
+}
+.contact p span img{
+    width:0.23rem;
+    height:0.25rem;
+    float:left;
+    margin-top:0.15rem;
+    overflow:hidden;
+}
+.contact p b{
+    width: 80%;
+    float:left;
+    margin-left:0.1rem;
+    display:inline;
+    color:#333;
+    font-size:0.3rem;
+}
+.middlePosition{
+    width:0.75rem;
+    position:absolute;
+    top:0.5rem;
+    right:0.44rem;
+    text-align:center;
+}
+.middlePosition img{
+    width:100%;
+    height:0.74rem;
+    float:left;
+    overflow:hidden;
+}
+.comment{
+    width:100%;
+    height:auto;
+    background:#fff;
+    float:left;
+    border-top:0.08rem #e6e6e6 solid;
+}
+.commentList{
+    width:90%;
+    margin:0 auto;
+}
+.commentList li{
+    width:100%;
+    float:left;
+}
+.commentListP{
+    width:100%;
+    float:left;
+    padding-top:0.28rem;
+    color:#fd8a19;
+    font-size:0.28rem;
+    line-height:0.36rem;
+}
+.commentListP label{
+    color:#000;
+}
+.commentListDiv{
+    width:100%;
+    float:left;
+    margin-top:0.28rem;
+}
+.commentListDiv a{
+    float:left;
+}
+.commentListDiv img{
+    width:1.9rem;
+    height:1.9rem;
+    float:right;
+    margin-right:0.07rem;
+    margin-top: 0.08rem;
+    overflow:hidden;
+}
+.commentDiv{
+    width:100%;
+    height:0.44rem;
+    float:left;
+    margin-top:0.28rem;
+    padding-bottom:0.28rem;
+    line-height:0.44rem;
+    border-bottom:1px #eee solid;
+}
+.commentDiv span{
+    float:left;
+    color:#8b8b8b;
+    font-size:0.28rem;
+}
+.commentDiv label{
+    width:1.28rem;
+    height:0.44rem;
+    float:right;
+    background:url(../img/dz.png) no-repeat;
+    background-size:contain;
+    color:#fd8a19;
+    font-size:0.24rem;
+    padding-left:0.5rem;
+}
+.ewm{
+    width:100%;
+    float:left;
+    text-align:center;
+}
+.ewm img{
+    width:2.72rem;
+    height:2.72rem;
+    margin:0 auto;
+    margin-top:0.3rem;
+}
+.ewm p{
+    color:#1a1a1a;
+    margin:0 auto;
+    margin-top:0.1rem;
+    font-size:0.28rem;
+}
+.commentDiv h4{
+    float:right;
+    margin-right:10%;
+    color:#666;
+    font-size:0.3rem;
+}
+.commentDiv h4.djsBoxDivRightColor{
+    color:#ff5000;
+}
+.commentDiv h4 b{
+    width:0.36rem;
+    height:0.4rem;
+    float:left;
+    overflow:hidden;
+    background:url(../img/z1.png) no-repeat;
+    background-size:contain;
+}
+.commentDiv h4 b.djsBoxDivRightB{
+    background:url(../img/z2.png) no-repeat;
+    background-size:contain;
+}
