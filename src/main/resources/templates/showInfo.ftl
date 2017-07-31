@@ -125,6 +125,7 @@
 
 </script>
 <script type="text/javascript">
+    <#--点击点赞，点赞数加1-->
     var showId = '';
     <#if show?? && show.id??>
     showId = '${show.id?c}';
