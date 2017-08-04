@@ -211,4 +211,5 @@ Caused by: com.alibaba.dubbo.common.bytecode.NoSuchMethodException: Not found me
 	at com.alibaba.dubbo.rpc.proxy.AbstractProxyInvoker.invoke(AbstractProxyInvoker.java:72)
 	... 25 more
 --]
-一般这种错都是因为修改了service服务后，确没有重新启动服务所致
+//一般这种错都是因为修改了service服务后，确没有重新启动服务所致
+//注：泛型中的类改变后，也需要重启应用才能生效，热部署没用
