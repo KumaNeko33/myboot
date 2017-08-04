@@ -47,11 +47,6 @@
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-core</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.zcckj</groupId>
-			<artifactId>commons-collections</artifactId>
-			<version>3.2.1</version>
-		</dependency>
 
 		<!--阿里 FastJson依赖-->
 		<dependency>

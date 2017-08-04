@@ -213,3 +213,60 @@ Caused by: com.alibaba.dubbo.common.bytecode.NoSuchMethodException: Not found me
 --]
 //一般这种错都是因为修改了service服务后，确没有重新启动服务所致
 //注：泛型中的类改变后，也需要重启应用才能生效，热部署没用
+
+spring中的freemarker配置：
+<bean id="freeMarkerConfigurer" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+    <property name="templateLoaderPaths" value="${template.loader_path}" />
+    <property name="freemarkerSettings">
+        <props>
+            <prop key="defaultEncoding">${template.encoding}</prop>
+            <prop key="url_escaping_charset">${url_escaping_charset}</prop>
+            <prop key="locale">${locale}</prop>
+            <prop key="template_update_delay">${template.update_delay}</prop>
+            <prop key="tag_syntax">auto_detect</prop>
+            <prop key="whitespace_stripping">true</prop>
+            <prop key="classic_compatible">true</prop>
+            <prop key="number_format">${template.number_format}</prop>
+            <prop key="boolean_format">${template.boolean_format}</prop>
+            <prop key="datetime_format">${template.datetime_format}</prop>
+            <prop key="date_format">${template.date_format}</prop>
+            <prop key="time_format">${template.time_format}</prop>
+            <prop key="object_wrapper">freemarker.ext.beans.BeansWrapper</prop>
+            <prop key="template_update_delay">0</prop>
+        </props>
+    </property>
+    <property name="freemarkerVariables">
+        <map>
+            <entry key="systemName" value="${system.name}" />
+            <entry key="systemVersion" value="${system.version}" />
+            <entry key="systemDescription" value="${system.description}" />
+            <entry key="systemShowPowered" value="${system.show_powered}" />
+            <entry key="base" value="#{servletContext.contextPath}" />
+            <entry key="locale" value="${locale}" />
+            <entry key="version" value="${static.version}" />
+            <entry key="message" value-ref="messageMethod" />   //freeMarker引用自定义java函数
+            <entry key="abbreviate" value-ref="abbreviateMethod" />
+            <entry key="execute_time" value-ref="executeTimeDirective" />
+            <entry key="currency" value-ref="currencyMethod" />
+            <entry key="flash_message" value-ref="flashMessageDirective" />
+            <entry key="pagination" value-ref="paginationDirective" />
+            <entry key="current_member" value-ref="currentMemberDirective" />
+            <entry key="ad_position" value-ref="adPositionDirective" />
+            <entry key="distributor_list" value-ref="distributorListDirective" />
+            <entry key="article_list" value-ref="articleListDirective" />
+            <entry key="article_category_root_list" value-ref="articleCategoryRootListDirective" />
+            <entry key="article_category_parent_list" value-ref="articleCategoryParentListDirective" />
+            <entry key="article_category_children_list" value-ref="articleCategoryChildrenListDirective" />
+
+        </map>
+    </property>
+</bean>
+页面中：
+${message("")}是freeMarker引用自定义java函数
+
+在国际化消息配置文件message_zh_CN.properties中可使用占位符 {0},这样页面中可传值进来、
+admin.page.total=\u5171<span id="pageTotal">{0}</span>\u6761\u8bb0\u5f55
+页面中：
+<span>(${message("admin.page.total", totalRecord)})</span> //totalRecord是后台传来的值，可以传入国际化消息配置文件message_zh_CN.properties中的占位符
+
+&raquo;
