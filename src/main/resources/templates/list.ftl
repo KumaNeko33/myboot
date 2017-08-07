@@ -270,3 +270,27 @@ admin.page.total=\u5171<span id="pageTotal">{0}</span>\u6761\u8bb0\u5f55
 <span>(${message("admin.page.total", totalRecord)})</span> //totalRecord是后台传来的值，可以传入国际化消息配置文件message_zh_CN.properties中的占位符
 
 &raquo;
+
+
+日期插件WdatePicker的使用：
+（1）下载WdatePicker.js（包括lang和skin文件夹）。
+（2）在html页面中导入WdatePicker.js。
+（3）在输入框input元素上加入class="Wdate" onFocus="WdatePicker({dateFmt:'yyyy-MM-dd',maxDate:'#F{$dp.$D(\'beginDate\')}'})"代码。
+开始日期-maxDate:'#F{$dp.$D(\'endDate\')||\'new Date()\'}'
+结束日期-minDate:'#F{$dp.$D(\'startDate\')}',maxDate:new Date()
+这里的maxDate和minDate后的是标准写法，不能把endDate换成其他的，如createDate
+（4）打开页面查看效果。
+推荐格式：
+<input type="text" id="beginDate" name="createTimeBegin" value="${createTimeBegin}" class="text Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss', maxDate: '#F{$dp.$D(\'endDate\')}'});" />
+表table内的元素CSS样式：
+.myTable th{
+width: 75px;
+height:20px;
+padding: 0px 0px 0px 15px;
+text-align: right;
+}
+.myTable td {
+line-height: 25px;
+padding: 5px;
+color: #666666;
+}
