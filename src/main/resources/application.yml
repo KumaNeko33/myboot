@@ -1,5 +1,7 @@
 # 所有环境通用的配置，放在这里
 spring:
+  application:
+    name: shuai-user
   profiles:
     active: dev
 # 404 交给异常处理器处理
@@ -16,3 +18,33 @@ server:
 management:
   security:
     enabled: false
+
+logging:
+  level:
+    org:
+      springframework:
+        security:
+          web:
+            authentication: error
+  file: /logs/${spring.application.name}.log
+endpoints:
+  logfile:
+    enabled: true
+
+provider:
+  group: zc-sso-${spring.profiles}
+
+#mybatis:
+#  config-location: config/mybatis-config.xml
+
+#mapper:
+#    mappers:
+#        - com.zcckj.storeshow.common.BaseMapper
+#    not-empty: false
+#    identity: MYSQL
+#pagehelper
+pagehelper:
+  #当该参数设置为 true 时，pageNum<=0 时会查询第一页， pageNum>pages（超过总数时），会查询最后一页
+  reasonable: false
+  #当该参数设置为true时，使用 RowBounds 分页会进行 count 查询
+  rowBoundsWithCount: true

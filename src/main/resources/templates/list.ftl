@@ -130,6 +130,8 @@
     });
 </script>
 
+[#--图片的缩小展示${photoUrl}_32x32--]
+<a href="${photoUrl}" target="_blank"><img src="${photoUrl}_32x32" width="40" height="40" /></a>
 
 [#--通过properties，将controller传过来的如枚举类的字符串英文值 转换成 对应意义的中文,多种可能值--]
 [#--
@@ -157,8 +159,8 @@ admin.sellerShow.tjStatus.FTJ=\u975e\u63a8\u8350 非推荐，对应枚举值FTJ
     //prompt层新定制的成员如下
     {
         formType: 1, //输入框类型，支持0（文本）默认1（密码）2（多行文本）
-                value: '', //初始时的值，默认空字符
-            maxlength: 140, //可输入文本的最大长度，默认500
+        value: '', //初始时的值，默认空字符
+        maxlength: 140, //可输入文本的最大长度，默认500
     }
     应用：
 layer.prompt({
