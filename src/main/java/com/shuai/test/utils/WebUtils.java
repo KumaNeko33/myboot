@@ -1,21 +1,17 @@
 package com.shuai.test.utils;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.Assert;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.util.Assert;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * @Title: WebUtils.java
@@ -314,39 +310,39 @@ public final class WebUtils {
 		throw new IllegalArgumentException();
 	}
 
-	/**
-	 * 获取IP地址
-	 * 
-	 * @param isAddr
-	 *            是否获取所属地
-	 * @return
-	 */
-	public static Map<String, String> getIp(Boolean isAddr) {
-		RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
-		String ip = null;
-		Map<String, String> info = null;
-		if (requestAttributes != null) {
-			HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
-			ip = getIpAddr(request);
-		}
-		if (StringUtils.isNotEmpty(ip)) {
-			if (isAddr) {
-				String area = QQWry.getInstance().getCountry(ip);
-				if (StringUtils.isNotEmpty(area) && !area.equals("IANA")) {
-					info = new HashMap<String, String>();
-					info.put(PARAM_IP_KEY, ip);
-					info.put(PARAM_IP_CITY_KEY, area);
-				} else {
-					info = new HashMap<String, String>();
-					info.put(PARAM_IP_KEY, ip);
-				}
-			} else {
-				info = new HashMap<String, String>();
-				info.put(PARAM_IP_KEY, ip);
-			}
-		}
-		return info;
-	}
+//	/**
+//	 * 获取IP地址
+//	 *
+//	 * @param isAddr
+//	 *            是否获取所属地
+//	 * @return
+//	 */
+//	public static Map<String, String> getIp(Boolean isAddr) {
+//		RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
+//		String ip = null;
+//		Map<String, String> info = null;
+//		if (requestAttributes != null) {
+//			HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
+//			ip = getIpAddr(request);
+//		}
+//		if (StringUtils.isNotEmpty(ip)) {
+//			if (isAddr) {
+//				String area = QQWry.getInstance().getCountry(ip);
+//				if (StringUtils.isNotEmpty(area) && !area.equals("IANA")) {
+//					info = new HashMap<String, String>();
+//					info.put(PARAM_IP_KEY, ip);
+//					info.put(PARAM_IP_CITY_KEY, area);
+//				} else {
+//					info = new HashMap<String, String>();
+//					info.put(PARAM_IP_KEY, ip);
+//				}
+//			} else {
+//				info = new HashMap<String, String>();
+//				info.put(PARAM_IP_KEY, ip);
+//			}
+//		}
+//		return info;
+//	}
 
 	public static String getIpAddr(HttpServletRequest request) {
 		String ip = request.getHeader("x-forwarded-for");

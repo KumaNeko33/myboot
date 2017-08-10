@@ -4,7 +4,7 @@ import com.shuai.test.dao.StoreDao;
 import com.shuai.test.dto.StoreDto;
 import com.shuai.test.utils.Result;
 import com.shuai.test.utils.ResultGenerator;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
