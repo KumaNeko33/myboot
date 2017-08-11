@@ -140,10 +140,10 @@ admin.sellerShow.tjStatus.FTJ=\u975e\u63a8\u8350 非推荐，对应枚举值FTJ
 --]
 <td>${message("admin.sellerShow.tjStatus." + showInfo.tjStatus)}</td>
 
-[#--问题：--]
+[#--问题：后台传来的时间Date格式在页面显示不了--]
 [#--freemarker.template.TemplateModelException: Can't convert the date to string, because it is not known which parts of the date variable are in use. Use ?date, ?time or ?datetime built-in, or ?string.<format> or ?string(format) built-in with this date.--]
 [#--freemarker.core.InvalidReferenceException: Expression showInfo.tjTm is undefined on line 445, column 27 in admin/seller_show/list.ftl.--]
-[#--解决：--]
+[#--解决：将Date格式转成String类型的日期即可显示--]
 <td>
     [#if showInfo.tjTm??]
         ${showInfo.tjTm?string("yyyy-MM-dd hh:mm:ss")}
@@ -282,8 +282,9 @@ admin.page.total=\u5171<span id="pageTotal">{0}</span>\u6761\u8bb0\u5f55
 结束日期-minDate:'#F{$dp.$D(\'startDate\')}',maxDate:new Date()
 这里的maxDate和minDate后的是标准写法，不能把endDate换成其他的，如createDate
 （4）打开页面查看效果。
-推荐格式：
+推荐格式：id="beginDate"和id="endDate"日期插件才能定位到当前标签正下方显示
 <input type="text" id="beginDate" name="createTimeBegin" value="${createTimeBegin}" class="text Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss', maxDate: '#F{$dp.$D(\'endDate\')}'});" />
+
 表table内的元素CSS样式：
 .myTable th{
 width: 75px;
@@ -295,4 +296,9 @@ text-align: right;
 line-height: 25px;
 padding: 5px;
 color: #666666;
+}
+//设置表单内td标签内的span标签的文字内容居中
+.list span{
+display: block;
+text-align: center;
 }

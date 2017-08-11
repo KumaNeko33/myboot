@@ -97,7 +97,7 @@ public class StoreController {
     }
 
     /**
-     * 选择排序增序,选择过程中只交换数组的下标，每一次交换完成后才进行数组元素的位置交换
+     * 选择排序增序,选择过程中只交换数组的下标，每一次交换完成后才进行数组元素的位置交换，时间复杂度O(n^2)
      *
      * @param array
      */
@@ -130,7 +130,7 @@ public class StoreController {
     }
 
     /**
-     * 插入排序：逐渐形成一个有序队列，然后后面的元素不断往这个有序队列里插入对应位置即可
+     * 插入排序：逐渐形成一个有序队列，然后后面的元素不断往这个有序队列里插入对应位置即可,时间复杂度O(n^2)
      */
     public static void insertSort(int[] arr) {
         int i, j;
@@ -138,12 +138,26 @@ public class StoreController {
         for (i = 1; i < arr.length; i++) {
             insert = arr[i];
             j = i - 1;
-            while (j >= 0 && insert < arr[j]) {//轮询队列，进行插入
+            while (j >= 0 && insert < arr[j]) {//轮询队列，左大于右的话，将左的值赋给右位置，保证右边的比左边大，直到相等或小于时进行插入
                 arr[j + 1] = arr[j];
                 j--;
             }
             arr[j + 1] = insert;
 //            display(arr);
+        }
+    }
+
+    public static void insertSort2(int[] arr) {
+//        int in = 1;
+        int insert;
+        for (int in = 1; in < arr.length; in++) {
+            insert = arr[in];
+            while (in-1 >= 0 && insert < arr[in - 1]) {
+                arr[in] = arr[in - 1];
+                in--;
+            }
+            arr[in] = insert;
+//            swap(index, in, arr);
         }
     }
 
@@ -195,7 +209,7 @@ public class StoreController {
         }
     }
 
-    //利用partition(分割)函数进行快速排序：
+    //递归利用partition(分割)函数进行快速排序：
     public static void quicksort(int[] arr, int start, int end) {
         if (start < end) {
             int middle = (start + end) / 2;
@@ -203,5 +217,42 @@ public class StoreController {
             quicksort(arr, start, q - 1);
             quicksort(arr, q + 1, end);
         }
+    }
+
+    //二叉查找树：二叉搜索树又称为二叉查找树，二叉排序树（Binary Sort Tree），是满足以下条件的二叉树：
+    // 1.左子树上的所有节点值均小于根节点值，
+    // 2右子树上的所有节点值均不小于根节点值，
+    // 3，左右子树也满足上述两个条件。（左小右大）
+
+    //二叉搜索树的后序遍历序列
+/*    【题目】输入一个整数数组，判断该数组是不是某二叉搜索树的后序遍历的结果。如果是则输出Yes,否则输出No。假设输入的数组的任意两个数字都互不相同。
+    后序遍历的顺序：左右根
+
+    二叉搜索树左子树的值小于结点值，右子树的值大于结点值
+
+    最后一个为根结点，最重要是找到左字数和右字数的分界
+
+    举例：{5，7，6，9，11，10，8}*/
+    public static Boolean verifySequenceOfBST(int[] sequence) {
+        if (sequence.length == 0) {
+            return false;
+        }
+        if (sequence.length == 1) {
+            return true;
+        }
+        return verigy(sequence, 0, sequence.length - 1);
+    }
+
+    private static Boolean verigy(int[] sequence, int start, int end) {
+        //后序遍历，最后一个数8为根节点，思路：递归，每个子树从倒数第二个后往前，比根节点大的都是右子树遍历的结果，直到比根节点小的，开始都是左子树遍历的结果，这时如果出现比根节点大的
+        //则不符合二叉搜索树的后序遍历规则，返回false
+        int index = end - 1;
+        while (index >= 0 && sequence[index] > sequence[end]) {
+            index--;
+        }
+        for (int i = start; i < index; i++) {
+
+        }
+        return true;
     }
 }
