@@ -164,11 +164,11 @@ admin.sellerShow.tjStatus.FTJ=\u975e\u63a8\u8350 非推荐，对应枚举值FTJ
     }
     应用：
 layer.prompt({
-        title:"请填写推荐标题",
-        type: 2,
+        title:"请填写推荐标题",  //title: [message, 'font-size:15px;padding:0 0 0 15px'],可以设置title的css样式
         closeBtn: 0,
         area:['500px','400px'],
-        formType:2,
+        //type: 2,//0（信息框，默认）1（页面层）2（iframe层）3（加载层）4（tips层）
+        formType:2,//输入框类型，支持0（文本）默认1（密码）2（多行文本）
         value:'最多20字',
         maxlength:20,
     },function(value, index, elem){
@@ -302,3 +302,54 @@ color: #666666;
 display: block;
 text-align: center;
 }
+
+//热部署失效情况：类中新添方法需要重启应用
+//隐藏域的表单form不得包含在 主表单form中 ，这样隐藏域的表单form.submit()会出错
+//request可用来获取shiro安全框架等登录验证成功后存入session的用户信息，如：
+Principal userPrincipal = request.getUserPrincipal();
+String userName = userPrincipal.getName();获取登录用户名
+
+//若有多个标签的id相同  通过id选择器进行赋值时只对第一个id=指定名称的标签 进行赋值，这时要么换成.class类选择器，要么改变不同标签的id
+
+//    当数据不足一页的大小如pageSize=20时，不会进行分页，即看不到分页组件
+[#--[@pagination pageNumber = page.pageNumber totalPages = totalPages]--]
+    [#--[#include "*/admin/include/pagination.ftl"]--]
+[#--[/@pagination]--]
+//当一个javascript中的一个方法出现问题，会导致其他js方法一起失效
+
+
+用compress directive或者transform来处理输出。
+<#compress>...</#compress>：消除空白行。
+<@compress single_line=true>...</@compress>将输出压缩为一行。都需要包裹所需文档
+//freemarker可用"["代替"<".在模板的文件开头加上[#ftl].
+
+使用layer的css样式及弹窗引入：
+./layui/css/layui.css
+./layui/layui.js
+/extend/layer.ext.js  //用于prompt弹窗
+
+//freemarker中前端获取 后端传过来的 list集合的单个值
+${showContentList[0]}
+//普通页面应该也行得通
+showContentList[0]
+
+
+/*页面的标签的 宽高是auto 是因为这些标签不是块元素，是inline的，需要设成display:block才能进行设置 宽高
+display:inline
+属性的元素默认宽高属性是auto，设置了浏览器也会变成auto，所以想要设置元素的宽高，需要把元素变成块元素，即
+
+display:block
+等
+默认宽高是浏览器自动计算的inline元素内文本占据的行高等的高度，所以可以设置背景色
+
+inline元素的高度与font-size相关，但不是font-size决定，
+涉及到匿名框，行框，行内框，内容区等
+
+font-size决定匿名框，匿名框构成内容区，内容区加行间距得到行内框高度，行内框的最高，最低点的最小框构成行框；
+
+行间距是line-height与font-size之差，上下各1/2分布内容区上下
+
+默认情况下，line-height:nomarl，转换成数字比1大，字体不同，行高也会不同
+
+所以，你的字体是16px，但元素高度大于16
+*/
