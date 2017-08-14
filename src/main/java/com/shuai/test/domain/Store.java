@@ -73,7 +73,7 @@ public class Store implements Serializable {
     /**
      * 门店id（来自创建该门店应用中主键id）
      */
-//    @Column(name = "store_id")
+    @Column(name = "store_id")
     private Long storeId;
 //    @Column(name = "create_date")
     /** 创建日期 */
@@ -81,4 +81,5 @@ public class Store implements Serializable {
 
     /** 修改日期 */
     private Long modifyDate = System.currentTimeMillis();
+
 }

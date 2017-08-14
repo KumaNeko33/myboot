@@ -4,10 +4,10 @@ import com.shuai.test.dao.StoreDao;
 import com.shuai.test.dto.StoreDto;
 import com.shuai.test.utils.Result;
 import com.shuai.test.utils.ResultGenerator;
-import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.transaction.Transactional;
 import java.util.HashMap;
@@ -33,9 +33,10 @@ public class StoreServiceImpl implements StoreService{
 
         HashMap returnMap = new HashMap();
         try {
-            Long storeId = storeDto.getStoreId();
+//            Long storeId = storeDto.getStoreId();
+            Long storeId = 16L;
             List<Object[]> resultList = storeDao.getPointAndRebate(storeId, year, month);
-            if (CollectionUtils.isNotEmpty(resultList)) {
+            if (CollectionUtils.isEmpty(resultList)) {
 //                returnMap.put("monthPoint", Long.parseLong(resultList.get(0)[0].toString()));
                 returnMap.put("monthPoint", resultList.get(0)[0]);
                 returnMap.put("monthRebate", resultList.get(0)[1]);
