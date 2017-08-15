@@ -353,3 +353,143 @@ font-size决定匿名框，匿名框构成内容区，内容区加行间距得�
 
 所以，你的字体是16px，但元素高度大于16
 */
+
+layer弹出的页面层：在content中写入html标签后，和jQuery的$.dialog()方法类似：
+layer弹出的页面层，是当前页面的一部分，即插入到当前页面 的body中
+所以可以直接通过onclick()调用当前页面的javascript方法
+layer弹出层也可以使用freemarker，然后javascript的加载先于freemarker语法
+layer弹出层的content无法接收之前javascript的代码（title可以），在content中写入html标签后，里面标签调用javascript方法，可以通过隐藏域来存储值，然后在调用的javascript方法通过$("#id")选择器来获取
+原理：layer弹出层的html标签，虽然无法和当前页面的其他标签进行交互，但是仍然可以调用当前页面的js方法，所以可以通过js方法来实现 layer弹出层的html标签和当前页面的标签的传值互动,如下：
+<script type="text/javascript">
+    $(function () {
+        $(".status").click(function () {
+            var id = $(this).attr("data-id");
+            $("#changeFlagModelId").val(id);
+            var status = $(this).attr("data-status");
+//                var content = $(this).attr("data-content");
+            var countModel = $("#countModel").val();
+            var message = "确定下架该卖家秀内容模板？";
+            if(status) {
+                if(countModel == 4) {
+                    message = "请最少保留4个内容模板！";
+                    layer.msg(message,{icon:2});
+                    return false;
+                }
+            }
+            if(!status) {
+                if(countModel == 4) {
+                    message = "最多上架4个，需选择下面某个模版下架才可上架此模版";
+                    layer.open({
+                        title: [message, 'font-size:15px;padding:0 0 0 15px'],
+                        [@compress single_line = true]
+                        content:'<table>
+                            [#--<tr>--]
+                                [#--<td class=\"myButton\"><button data-id=\"${showContentList[0].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[0].content?html, 14, "...")}<\/button>--]
+                                [#--<\/td>--]
+                                [#--<td class=\"myButton\"><button data-id=\"${showContentList[1].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[1].content?html, 14, "...")}<\/button>--]
+                                [#--<\/td>--]
+                            [#--<\/tr>--]
+                            [#--<tr>--]
+                                [#--<td class=\"myButton\"><button data-id=\"${showContentList[2].id}\" onclick=\"changeFlag(this)\">${abbreviate(showContentList[2].content?html, 14, "...")}<\/button>--]
+                                [#--<\/td>--]
+                                [#--<td class=\"myButton\"><button data-id=\"${showContentList[3].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[3].content?html, 14, "...")}<\/button>--]
+                                [#--<\/td>--]
+                            [#--<\/tr>--]
+                        [#--<\/table>',--]
+                        [#--上面是当showContentList为空时无法通过页面编译的版本，于是改成下面这种可以骗过编译器，不使用明文的索引调用list，使用showContent_index来调用--]
+                            [#if showContentList??]
+                                [#list showContentList as showContent]
+                                    [#if showContent_index = 0]
+                                    <tr>
+                                    <td class=\"myButton\"><button data-id=\"${showContentList[showContent_index].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[showContent_index].content?html, 14, "...")}<\/button>
+                                    <\/td>
+                                    [/#if]
+                                    [#if showContent_index = 1]
+                                    <td class=\"myButton\"><button data-id=\"${showContentList[showContent_index].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[showContent_index].content?html, 14, "...")}<\/button>
+                                    <\/td>
+                                    <\/tr>
+                                    [/#if]
+                                    [#if showContent_index = 2]
+                                    <tr>
+                                    <td class=\"myButton\"><button data-id=\"${showContentList[showContent_index].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[showContent_index].content?html, 14, "...")}<\/button>
+                                    <\/td>
+                                    [/#if]
+                                    [#if showContent_index = 3]
+                                    <td class=\"myButton\"><button data-id=\"${showContentList[showContent_index].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[showContent_index].content?html, 14, "...")}<\/button>
+                                    <\/td>
+                                    <\/tr>
+                                    [/#if]
+                                [/#list]
+                            [/#if]
+                        <\/table>',
+                        [/@compress]
+                        area: ['400px','225px'],
+                        closeBtn: 0,
+                    })
+                }
+                return false;
+            }
+            layer.confirm(message, {icon: 3, title:'提示'},function (index) {
+                $("#flag").val(!status);
+                $("#id").val(id);
+                $("#updateShowModelFlag").submit();
+                layer.close(index);
+            })
+        });
+        $("#addButtion").click(function () {
+            layer.prompt({
+                title: "设置模板内容（最多15字）",
+                formType: 2,
+                area:['350px','225px'],
+                closeBtn: 0,
+                maxlength: 15,
+            },function (value, index, elem) {
+                $("#storeModelContent").val(value);
+                layer.confirm('确认保存？',{icon: 3, title:'提示'},function (index) {
+                    $("#saveShowModel").submit();
+                    layer.close(index);
+                });
+                layer.close(index);
+            });
+        });
+        $(".editModel").click(function () {
+            var id = $(this).attr("data-id");
+            var content = $(this).attr("data-content");
+            layer.prompt({
+                title: "设置模板内容（最多15字）",
+                formType: 2,
+                area:['350px','225px'],
+                closeBtn: 0,
+                maxlength: 15,
+                value: content,
+            },function (value, index, elem) {
+                $("#storeModelId").val(id);
+                $("#updateModelContent").val(value);
+                $("#updateShowModel").submit();
+                layer.close(index);
+            })
+        });
+</script>
+<body>
+<input type="hidden" id="changeFlagModelId" name="changeFlagModelId"/>
+</body>
+<script type="text/javascript">
+    function changeFlag(e) {
+        var id = $(e).attr("data-id");
+        var preId = $("#changeFlagModelId").val();
+        var content = $(e).attr("data-content");
+        layer.confirm('确定下架该模板？',{icon:3,title:'提示'},function (index) {
+            $("#id").val(id);
+            $("#storeModelPreId").val(preId);
+            $("#flag").val(false);
+            $("#updateShowModelFlag").submit();
+            layer.close(index);
+        })
+    }
+</script>
+
+
+使用input type="submit"来提交表单form，后端用VO对象来封装表单数据，这时要注意的是表单中没有 name属性在VO对象中没有对应字段的 多余的标签，如隐藏域的标签不应该放在该form中
+字符串类型的非空和非null判断应该用StringUtils.isNotEmpty(str)
+
+后台传来的json
