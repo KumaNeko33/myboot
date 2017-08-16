@@ -402,6 +402,7 @@ layer弹出层的content无法接收之前javascript的代码（title可以）�
                                     [#if showContent_index = 0]
                                     <tr>
                                     <td class=\"myButton\"><button data-id=\"${showContentList[showContent_index].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[showContent_index].content?html, 14, "...")}<\/button>
+//                                    ${abbreviate(showContentList[showContent_index].content?html, 14, "...")}大于14字符的内容用...表示
                                     <\/td>
                                     [/#if]
                                     [#if showContent_index = 1]
@@ -493,3 +494,140 @@ layer弹出层的content无法接收之前javascript的代码（title可以）�
 字符串类型的非空和非null判断应该用StringUtils.isNotEmpty(str)
 
 后台传来的json
+
+
+mybatis中使用mapper3如何进行分页关联查询:
+mapper3无法实现，需要自己手动分页关联查询：
+使用注解@Select和@Results
+如：
+@Mapper
+public interface ShowDzLogMapper extends BaseMapper<ShowDzLog> {
+    @Select({"<script>",
+    "SELECT A.ID,B.ID DZ_LOG_ID,B.CREATE_BY STORE_ID,B.CREATE_BY_NAME STORE_NAME,B.STORE_ICON_URL,C.PHOTO_URL,B.CREATE_TM "+
+    "FROM STORE_SHOW A,SHOW_DZ_LOG B,SHOW_PHOTO C "+
+    "WHERE B.SHOW_ID=A.ID AND C.ID=(SELECT MIN(ID) FROM SHOW_PHOTO P WHERE P.SHOW_ID=A.ID) " +
+    "AND B.DZ_CHANNEL='APP' AND A.STORE_ID = #{storeId} AND B.CREATE_BY != #{storeId} " +
+    "<if test=' lastId &gt; 0'>"+
+    "AND B.ID &lt; #{lastId} "+
+    "</if>"+
+    "ORDER BY B.ID DESC "+
+    "LIMIT 0,#{pageSize}" ,
+            "</script>"})
+    @Results({
+    @Result(property = "dzLogId",  column = "DZ_LOG_ID"),
+    @Result(property = "storeId",  column = "STORE_ID"),
+    @Result(property = "storeName", column = "STORE_NAME"),
+    @Result(property = "storeIconUrl", column = "STORE_ICON_URL"),
+    @Result(property = "photoUrl", column = "PHOTO_URL"),
+    @Result(property = "createTm", column = "CREATE_TM")
+    })
+    public List<ShowDzLogDto> getReadedLogs(@Param("storeId") Long storeId, @Param("lastId") Long lastId, @Param("pageSize") Integer pageSize);
+
+    //关联查询的对象也是一个表，也有一个对应mapper时
+    @Select("SELECT * FROM inputParam WHERE inputParamId = #{id}")
+    @Results({
+    //查询关联对象
+    @Result(property = "api",
+    column = "apiId",
+    one = @One(select = "com.tuya.mapper.ApiMapper.selectById"))
+    })
+    InputParam selectById(@Param("id") int id);
+}
+
+
+但是我的项目中用的是Criteria的拼接查询，@Select()内的语句很难写，于是只能通过Mapper3的分页查询后，再对结果进行关联赋值了：
+@Override
+public ResponseDto<PageDto<TyreBrandPatternSettingListDto>> getPage(TyreBrandPatternSettingSearchDto searchDto) {
+    Example e=new Example(TyreBrandPatternSetting.class);
+    Example.Criteria c = e.createCriteria();
+    //排序
+    if(StringUtils.isEmpty(searchDto.getSort())){
+    e.setOrderByClause("id");
+    }else{
+    e.setOrderByClause(searchDto.getSort());
+    }
+    //根据品牌查询
+    if(null != searchDto.getTyreBrandId()){
+    c.andEqualTo("tyreBrandId",searchDto.getTyreBrandId());
+    }
+    //根据花纹查询
+    if(StringUtils.isNotEmpty(searchDto.getTyrePattern())){
+    c.andLike("tyrePatternName",searchDto.getTyrePattern());
+    }
+    PageRowBounds bounds = new PageRowBounds(searchDto.getOffset(), searchDto.getPageSize());
+    List<TyreBrandPatternSetting> list = mapper.selectByExampleAndRowBounds(e,bounds);
+        return ResponseDtoFactory.toSuccess("",new PageDto<>(searchDto,toDtos(list),bounds.getTotal().intValue()));//里面的toDtos(list)调用下面的方法
+}
+
+private List<TyreBrandPatternSettingListDto> toDtos(List<TyreBrandPatternSetting> entitys){//将查询结果list转成数据传输用的listDto，于是我在这步进行关联赋值
+    List<TyreBrandPatternSettingListDto> dtos = new ArrayList<>();
+    if(null != entitys && entitys.size() > 0)
+    for(TyreBrandPatternSetting entity : entitys){
+        if(entity != null){
+            //TyreBrandPatternSetting类和对应数据表中只含有 轮胎类型（在数据库也有对应的表） 的id
+            String tyreType = tyreTypeMapper.selectByPrimaryKey(entity.getTyreType()).getName();//在这里给Mapper3的分页查询后的结果进行关联赋值，设置轮胎类型的名称
+            TyreBrandPatternSettingListDto dto = new TyreBrandPatternSettingListDto(entity.getId(), entity.getTyreBrandName(), entity.getTyrePatternName(),tyreType, entity.getTyreInsFlag(), entity.getPhotoUrl());
+            dtos.add(dto);
+        }
+    }
+    return dtos;
+}
+
+//实体类listDto
+@Data
+public class TyreBrandPatternSettingListDto extends BaseDto {
+
+    /** 轮胎品牌名称 */
+    private String tyreBrandName;
+    /** 轮胎花纹名称 */
+    private String tyrePatternName;
+    /** 轮胎类型 */
+    private String tyreType;
+    /** 是否参加轮胎保： 1:是，0:否 */
+    private Boolean tyreInsFlag;
+    /** 图片URL */
+    private String photoUrl;
+
+    public TyreBrandPatternSettingListDto() {
+    }
+
+    public TyreBrandPatternSettingListDto(Long id, String tyreBrandName, String tyrePatternName,String tyreType, Boolean tyreInsFlag, String photoUrl) {
+    super(id);
+    this.tyreBrandName = tyreBrandName;
+    this.tyrePatternName = tyrePatternName;
+    this.tyreType = tyreType;
+    this.tyreInsFlag = tyreInsFlag;
+    this.photoUrl = photoUrl;
+    }
+}
+
+//TyreBrandPatternSetting实体类对象，对应数据库表TYRE_BRAND_PATTERN_SETTING
+@Data
+@Table(name = "TYRE_BRAND_PATTERN_SETTING")
+public class TyreBrandPatternSetting extends BaseEntity {
+    /** 轮胎品牌ID */
+    private Integer tyreBrandId;
+    /** 轮胎品牌名称 */
+    private String tyreBrandName;
+    /** 轮胎花纹ID */
+    private Integer tyrePatternId;
+    /** 轮胎花纹名称 */
+    private String tyrePatternName;
+    /** 是否参加轮胎保： 1:是，0:否 */
+    private Boolean tyreInsFlag;
+    /** 图片URL */
+    private String photoUrl;
+    /** 创建人 */
+    private String createBy;
+    /** 创建时间 */
+    private Timestamp createTm;
+    /** 修改人 */
+    private String modifyBy;
+    /** 修改时间 */
+    private Timestamp modifyTm;
+    /** 轮胎类型 */
+    private Integer tyreType;
+}
+
+
+调用API接口的方法，API接口的方法中传递数据的对象DTO需要实现序列化implement java.io.Serializable
