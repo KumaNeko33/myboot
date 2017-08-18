@@ -631,3 +631,46 @@ public class TyreBrandPatternSetting extends BaseEntity {
 
 
 调用API接口的方法，API接口的方法中传递数据的对象DTO需要实现序列化implement java.io.Serializable
+                        操作数据库的DO也要实现系列化
+
+                        优化思想：
+                <select id="status" name="availableFlag" class="selected">
+                    <option value="">${message("admin.common.choose")}</option>
+                    [#if showModelSearchDto.availableFlag?? && showModelSearchDto.availableFlag]
+                        <option value="true" selected="selected">${message("admin.sellerShowModel.status.true")}</option>
+                        <option value="false">${message("admin.sellerShowModel.status.false")}</option>
+                    [#elseif ]
+                        <option value="true">${message("admin.sellerShowModel.status.true")}</option>
+                        <option value="false" selected="selected">${message("admin.sellerShowModel.status.false")}</option>
+                    [#else]
+                        <option value="true">${message("admin.sellerShowModel.status.true")}</option>
+                        <option value="false">${message("admin.sellerShowModel.status.false")}</option>
+                    [/#if]
+                </select>
+                        优化后：
+                <select id="status" name="availableFlag" class="selected">
+                    <option value="">${message("admin.common.choose")}</option>
+                    <option value="true" [#if showModelSearchDto.availableFlag?? && showModelSearchDto.availableFlag]selected="selected"[/#if]>${message("admin.sellerShowModel.status.true")}</option>
+                    <option value="false" [#if showModelSearchDto.availableFlag?? && !showModelSearchDto.availableFlag]selected="selected"[/#if]>${message("admin.sellerShowModel.status.false")}</option>
+                </select>
+
+
+在用对象的属性进行真假条件判断时，需要保证这个对象的属性不为空，不然会报空指针异常NullpointException
+    如：
+        if (null != modelSearchDto.getAvailableFlag() && modelSearchDto.getAvailableFlag()) {
+        //如果在除第一页的其他页进行上架的搜索，默认从第一页开始
+            searchDto.setCurrentPage(1);
+        }
+
+
+
+                        易错：freemarker中的？length gt 20是根据问号之前的数据类型来判断是 字母数 还是 文字数。一个西文字符一个字节，一个中文字符两个字节，如：
+[#if showInfo.content?html?length gt 20]//如果content内容为文字，则这里判断的是 文字个数大于20则条件成立；如果content内容是字母，则这里判断的是 字节个数大于20则条件成立
+    <a  href="javascript:;" style="font-family : 微软雅黑,宋体;color: #00F;" onclick="tips(this)" value="${showInfo.content?html}">[${message("admin.sellerShow.viewAll")}]</a>
+[/#if]
+
+
+                      //实现从新窗口打开点击一张图片，target="_blank"
+                        <a href="${storeActivity.photoUrl}" target="_blank">
+                            <img src="${storeActivity.photoUrl}_32x32" width="40" height="40">
+                        </a>
