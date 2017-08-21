@@ -358,7 +358,12 @@ layer弹出的页面层：在content中写入html标签后，和jQuery的$.dialo
 layer弹出的页面层，是当前页面的一部分，即插入到当前页面 的body中
 所以可以直接通过onclick()调用当前页面的javascript方法
 layer弹出层也可以使用freemarker，然后javascript的加载先于freemarker语法
-layer弹出层的content无法接收之前javascript的代码（title可以），在content中写入html标签后，里面标签调用javascript方法，可以通过隐藏域来存储值，然后在调用的javascript方法通过$("#id")选择器来获取
+layer弹出层的content可以接收之前javascript的代码（title也可以），在content中写入html标签后，加个 ' + 前面用var声明的元素 + '  如：
+var a = 'aaaa';
+layer.open({
+    content:'<div>'+a+'<\/div>',
+});
+    layer弹出层的content里面的html标签可以调用javascript方法，可以通过隐藏域来存储值，然后在调用的javascript方法通过$("#id")选择器来获取
 原理：layer弹出层的html标签，虽然无法和当前页面的其他标签进行交互，但是仍然可以调用当前页面的js方法，所以可以通过js方法来实现 layer弹出层的html标签和当前页面的标签的传值互动,如下：
 <script type="text/javascript">
     $(function () {
@@ -664,13 +669,86 @@ public class TyreBrandPatternSetting extends BaseEntity {
 
 
 
-                        易错：freemarker中的？length gt 20是根据问号之前的数据类型来判断是 字母数 还是 文字数。一个西文字符一个字节，一个中文字符两个字节，如：
+易错：freemarker中的？length gt 20是根据问号之前的数据类型来判断是 字母数 还是 文字数。一个西文字符一个字节，一个中文字符两个字节，如：
 [#if showInfo.content?html?length gt 20]//如果content内容为文字，则这里判断的是 文字个数大于20则条件成立；如果content内容是字母，则这里判断的是 字节个数大于20则条件成立
     <a  href="javascript:;" style="font-family : 微软雅黑,宋体;color: #00F;" onclick="tips(this)" value="${showInfo.content?html}">[${message("admin.sellerShow.viewAll")}]</a>
 [/#if]
 
 
-                      //实现从新窗口打开点击一张图片，target="_blank"
-                        <a href="${storeActivity.photoUrl}" target="_blank">
-                            <img src="${storeActivity.photoUrl}_32x32" width="40" height="40">
-                        </a>
+//实现从新窗口打开点击一张图片，target="_blank"
+<a href="${storeActivity.photoUrl}" target="_blank">
+    <img src="${storeActivity.photoUrl}_32x32" width="40" height="40">
+</a>
+js中
+
+
+
+@Service(version="1.0.0",group = "spring.dubbo.group",timeout = 6000)
+该注解配置了dubbo的服务
+
+两步实现springmvc中string转化成Timestamp类型：
+                            1.创建CustomerTimestampEditor类：
+                            package net.showcoo;
+
+                            import org.springframework.util.StringUtils;
+
+                            import java.beans.PropertyEditorSupport;
+                            import java.sql.Timestamp;
+                            import java.text.ParseException;
+                            import java.text.SimpleDateFormat;
+
+                            /**
+                            * @Author: MiaoHongShuai
+                            * @Description: 字符串转为Timestamp
+                            * @Date: Created on 2017/8/21
+                            * @Modified By:
+                            */
+                            public class CustomTimestampEditor extends PropertyEditorSupport{
+                                    private final SimpleDateFormat dateFormat;
+                                    private final boolean allowEmpty;
+                                    private final int exactDateLength;
+
+                                public CustomTimestampEditor(SimpleDateFormat dateFormat, boolean allowEmpty) {
+                                    this.dateFormat = dateFormat;
+                                    this.allowEmpty = allowEmpty;
+                                    this.exactDateLength = -1;
+                                }
+
+                                public CustomTimestampEditor(SimpleDateFormat dateFormat,
+                                boolean allowEmpty, int exactDateLength) {
+                                    this.dateFormat = dateFormat;
+                                    this.allowEmpty = allowEmpty;
+                                    this.exactDateLength = exactDateLength;
+                                }
+
+                                public void setAsText(String text) throws IllegalArgumentException {
+                                    if ((this.allowEmpty) && (!(StringUtils.hasText(text)))) {
+                                    setValue(null);
+                                    } else {
+                                    if ((text != null) && (this.exactDateLength >= 0)
+                                        && (text.length() != this.exactDateLength)) {
+                                        throw new IllegalArgumentException(
+                                            "Could not parse date: it is not exactly"
+                                            + this.exactDateLength + "characters long");
+                                    }
+                                    try {
+                                        setValue(new Timestamp(this.dateFormat.parse(text).getTime()));
+                                        } catch (ParseException ex) {
+                                            throw new IllegalArgumentException("Could not parse date: "
+                                        + ex.getMessage(), ex);
+                                        }
+                                    }
+                                }
+
+                                public String getAsText() {
+                                    Timestamp value = (Timestamp) getValue();
+                                    return ((value != null) ? this.dateFormat.format(value) : "");
+                                }
+                            }
+
+                            2.controller中添加注解代码：
+                            @InitBinder
+                            public void initBinder(WebDataBinder binder) {
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            binder.registerCustomEditor(Timestamp.class, new CustomTimestampEditor(dateFormat, true));
+                            }
