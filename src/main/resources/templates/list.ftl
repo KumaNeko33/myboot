@@ -329,9 +329,12 @@ String userName = userPrincipal.getName();获取登录用户名
 /extend/layer.ext.js  //用于prompt弹窗
 
 //freemarker中前端获取 后端传过来的 list集合的单个值
-${showContentList[0]}
+    ${showContentList[0]}
 //普通页面应该也行得通
 showContentList[0]
+//js中通过freemarker的方式获取后端传过来的 值：两边加引号即可，如：
+    var a = '${showContentList[0]}';
+    [@flash_message /]
 
 
 /*页面的标签的 宽高是auto 是因为这些标签不是块元素，是inline的，需要设成display:block才能进行设置 宽高
@@ -686,7 +689,7 @@ js中
 @Service(version="1.0.0",group = "spring.dubbo.group",timeout = 6000)
 该注解配置了dubbo的服务
 
-两步实现springmvc中string转化成Timestamp类型：
+**两步实现springmvc中string转化成Timestamp类型：
                             1.创建CustomerTimestampEditor类：
                             package net.showcoo;
 
@@ -752,3 +755,245 @@ js中
                             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                             binder.registerCustomEditor(Timestamp.class, new CustomTimestampEditor(dateFormat, true));
                             }
+
+
+
+**页面使用ajaxFileUpload实现点击图片弹出 文件上传框，确认后图片上传后显示在页面原来的地方覆盖原图片，且不显示input标签的“未选择任何文件”；
+        如果showActivity.photoUrl为空，则说明是新增门店活动，于是切换成添加活动海报的按钮和显示框：
+                            1.body中的代码：
+                            <tr>
+                                <th>活动海报:</th>
+                                <td class="move">
+                                    <div>
+                                    [#if showActivity.photoUrl??]
+                                        <img id="source" src="${showActivity.photoUrl}" width="300px" height="150px" onclick="$('#multipartFile').click();"/>
+                                    [#else]
+                                        <a href="#" id="addPhoto" class="iconButton" onclick="$('#multipartFile').click();" style="z-index: 10">
+                                            <span class="addIcon">&nbsp;</span>请添加活动海报
+                                        </a>
+                                        <img id="source" src="" width="300px" height="150px" onclick="$('#multipartFile').click();" style="display:none"/>
+                                    [/#if]
+                                        <input type="file" id="multipartFile" name="multipartFile" value="${showActivity.photoUrl}" title=""/>
+                                        <input type="hidden" id="photoUrl" name="photoUrl" value="${showActivity.photoUrl}" />
+                                    </div>
+                                </td>
+                            </tr>
+                            2.css样式：使原本的file上传input按钮的透明化，position: relative;表示父标签位置相对，position: absolute;表示子标签位置相对于父标签是绝对的
+                            ，这里的top和left指子标签相对父标签内容右上角的相对距离
+                            <style type="text/css">
+                                .move{
+                                    position: relative;
+                                }
+                                .move input{
+                                    opacity:0;
+                                    filter:alpha(opacity=0);
+                                    height: 150px;
+                                    width: 300px;
+                                    position: absolute;
+                                    top: 5px;
+                                    left: 5px;
+                                    z-index: 9;
+                                }
+                            </style>
+                            3.js中的方法：给文件上传input按钮绑定改变触发事件
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $('#multipartFile').change(function(){
+                                        var file = $("#multipartFile").val();
+                                        if( !file.match( /.jpg|.gif|.png|.bmp/i ) ){//正则检验文件的后缀名是否为图片格式
+                                            $.dialog({
+                                                type: 'warn',
+                                                content: '图片格式错误！',
+                                            });
+                                            return false;
+                                        }
+                                        $.ajaxFileUpload({
+                                            url: '${base}/admin/store_activity_model/uploadOnePhoto.cgi?inputId=multipartFile',
+                                            secureuri : false,
+                                            fileElementId: 'multipartFile',
+                                            dataType: 'json',
+                                            async: false,
+                                            success: function (data) {
+                                                if(data.result === 'success') {
+                                                    $("#source").attr("src", data.url);
+                                                    $("#photoUrl").val(data.url);
+                                                }else {
+                                                    $.dialog({
+                                                        type: 'warn',
+                                                        content: '出现异常：'+data.msg+'',
+                                                    });
+                                                }
+                                            }
+                                        });
+                                    });
+                                });
+                            </script>
+
+
+**日期插件Wdate的扩展应用：实现年月日和时分的分开输入，并且设置默认的时分值，最后输入的年月日和时分合并为一个时间传给后端
+                            1.body中的代码：
+                            <tr>
+                                <th>
+                                    活动开始时间:
+                                </th>
+                                <td id="begin">
+                                    <input type="text" id="beginDate" value="${beginDay}"
+                                           class="text Wdate"
+                                           onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd', maxDate: '#F{$dp.$D(\'endDate\')}'});"/>
+                                    <input type="text" id="beginTime" value="${beginTime}"  //原来这里的id不必为beginDate，和结束时间的minDate里的名称对应即可
+                                           class="text Wdate"
+                                           onfocus="WdatePicker({dateFmt: 'HH:mm'});"/>  //注意：这里开始时分不设置 对应结束时分的上限，因为两者互相可大可小，时间的先后顺序交给 年月日 来控制
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    活动结束时间:
+                                </th>
+                                <td id="end">
+                                    <input type="text" id="endDate" value="${endDay}" class="text Wdate"
+                                           onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd', minDate: '#F{$dp.$D(\'beginDate\')}'});"/>
+                                    <input type="text" id="endTime" value="${endTime}" class="text Wdate" //原来这里的id不必为endDate，和结束时间的maxDate里的名称对应即可
+                                           onfocus="WdatePicker({dateFmt: 'HH:mm'});"/> //注意：这里结束时分不设置 对应开始时分的下限，因为两者互相可大可小，时间的先后顺序交给 年月日 来控制
+                                </td>
+                            </tr>
+                            2.用freemarker处理后端传来的时间数据，转化成年月日和时分显示,没有的话设置默认值，WDate日期框默认值可为字符串：
+                            [#assign beginDay = ""]
+                            [#assign endDay = ""]
+                            [#assign beginTime = ""]
+                            [#assign endTime = ""]
+                            [#if showActivity??]
+                                [#if showActivity.beginTm??]
+                                    [#assign beginDay = showActivity.beginTm?string("yyyy-MM-dd")]
+                                    [#assign beginTime = showActivity.beginTm?string("HH:mm")]
+                                [#else]
+                                    [#assign beginDay = "请选择"]
+                                    [#assign beginTime = "00:00"]
+                                [/#if]
+                                [#if showActivity.endTm??]
+                                    [#assign endDay = showActivity.endTm?string("yyyy-MM-dd")]
+                                    [#assign endTime = showActivity.endTm?string("HH:mm")]
+                                [#else]
+                                    [#assign endDay = "请选择"]
+                                    [#assign endTime = "24:00"]
+                                [/#if]
+                            [/#if]
+                            3.js中的方法进行年月日和时分输入值合并成 一个时间（这个值赋给隐藏标签），并进行表单校验，然后提交表单传给后端：
+                            <form id="inputForm" action="update.cgi" method="post" enctype="multipart/form-data">
+                                <input type="hidden" name="id" value="${showActivity.id}" />
+                                <input type="hidden" id="beginTm" name="beginTm" />
+                                <input type="hidden" id="endTm" name="endTm" />
+                                ...
+                            </form>
+                            js:
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $("#submitBtn").click(function () {
+                                        var $beginDay = $("#begin").children(":eq(0)").val();
+                                        var $beginTime = $("#begin").children(":eq(1)").val();
+                                        var $endDay = $("#end").children(":eq(0)").val();
+                                        var $endTime = $("#end").children(":eq(1)").val();
+                                        var beginTm = $beginDay + " " + $beginTime + ":00";
+                                        var endTm = $endDay + " " + $endTime + ":00";
+                                        if($beginDay == "请选择") {
+                                            $.dialog({
+                                                type: 'warn',
+                                                content: '活动开始时间不能为空！'
+                                            })
+                                            return false;
+                                        }
+                                        if($endDay == "请选择") {
+                                            $.dialog({
+                                                type: 'warn',
+                                                content: '活动结束时间不能为空!'
+                                            })
+                                            return false;
+                                        }
+                                        var title = $("#title").val();
+                                        if(title == null || title == "" || title == undefined) {
+                                            $.dialog({
+                                                type: 'warn',
+                                                content: '活动名称不能为空!'
+                                            })
+                                            return false;
+                                        }
+                                        var photoUrl = $("#photoUrl").val();
+                                        if(photoUrl == null || photoUrl == "" || photoUrl == undefined) {
+                                            $.dialog({
+                                                type: 'warn',
+                                                content: '活动海报不能为空!'
+                                            })
+                                            return false;
+                                        }
+                                        $("#beginTm").val(beginTm);
+                                        $("#endTm").val(endTm);
+                                        $("#inputForm").submit();
+                                    });
+                                });
+                            </script>
+
+
+
+                            **控制标签的层次显示：让一个div层浮在最上层的方法：z-index:auto;越大代表越置前，如可定义为： z-index:9999。若定义为-1，代表为最底层。
+                            **如何在freemarker中遍历list时进行计数，然后条件成立时跳出list循环：如下：
+                            定义循环外部变量,然后在循环内部累加,最后做判断，用'<#break>'可以跳出<#list></#list>循环
+                            <#if (articleList)??>
+                                <#assign x=0 />
+                                <#list articleList?sort_by(["wa_postdate"])?reverse  as item>
+                                    <#if item.wa_recommend=='1' && item.wa_status=="1">
+                                        <#assign x=x+1 />
+                                        <li style="list-style-type:circle;color:#000000; margin-left:20px;">
+                                             <span style="display:block;height:24px;float:right;color:blue;font-size: 12px;margin-right:7px;"><@dateMonthOut item.wa_postdate/>
+                                             </span>
+                                            <span class="news_title">
+                                                <a href="${path}/web/article_newsViewA.do?wa_id=${(item.wa_id)!}"
+                                                   target="_blank">${ellipsis(item.wa_title,24)}</a>
+                                                <#if getBetweenDays(formatDate(item.wa_postdate),getNow("yyyy-MM-dd"))<=3>
+                                                    <img src="${path}/website/images/newnail.png"/>
+                                                </#if>
+                                            </span>
+                                        </li>
+                                    </#if>
+                                    <#if x == 4> <#break> </#if>
+                                </#list>
+                            </#if>
+                                我的项目的实际运用：只展示后端返回的List集合中最多三个storeActivity.availableFlag=true的活动模板
+                            $("#viewAppModelButton").click(function () {
+                                layer.open({
+                                title: ['APP模板页面','font-size:15px;color:#ffffff;text-align:center;margin:auto;display:block;padding:0 20px;background-color:#CD4344'],
+                                [@compress single_line = true]//freemarker的compress标签,将content内容压缩成一行
+                                content: '[#if storeActivityModelList??]
+                                [#assign x = 0]
+                                <div>
+                                [#list storeActivityModelList as storeActivity]
+                                    [#if storeActivity.availableFlag?? && storeActivity.availableFlag]
+                                        [#assign x = x + 1]
+                                    <div><strong>${storeActivity.title}<\/strong><\/div style=\"height:10%\" class=\"flex-item\">
+                                    <div style=\"height:10%\" class=\"flex-item\"><span style=\"font-size:13px\">${message("admin.storeActivity.startAndEndDate")}<\/span> :
+                                    <span style=\"font-size:13px\" >${storeActivity.beginTm} — ${storeActivity.endTm}<\/span><\/div>
+                                    <div style=\"height:45%\" class=\"flex-item\"><img src=\"${storeActivity.photoUrl}\" width=\"100%\" height=\"160px\"><\/div>
+                                    <div style=\"height:35%\" class=\"flex-item\"><p>${storeActivity.content}<\/p><\/div>
+                                        <br\/>
+                                    [/#if]
+                                    [#if x == 3][#break][/#if]
+                                [/#list]
+                                <\/div id=\"flex-container\">
+                                [/#if]',
+                                [/@compress]
+                                    area: ['375px','460px'],
+                                    closeBtn: 0,
+                                })
+                            });
+                                因为是竖向显示的弹窗，这里还采用了flex布局，使用方法：对父标签使用：
+                                #flex-container{
+                                    display: -webkit-flex;
+                                    display: flex;
+                                    -webkit-animation-direction: column;
+                                    flex-direction: column;
+                                }
+                                对父标签内的子标签使用：
+                                #flex-container .flex-iten{
+                                    -webkit-flex: auto;
+                                    flex: auto;//当存在剩余空间，则子标签将等分剩余空间（如果有的话）；当空间不足时，子标签都将等比例缩小。
+                                }
+                                这样，子标签将整齐的排成一列，且不会互相重叠，而且可根据子标签内的子标签内容高度调整子标签的高度，
+                                但是宽度都是固定的
