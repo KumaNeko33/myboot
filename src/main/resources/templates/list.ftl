@@ -274,16 +274,26 @@ admin.page.total=\u5171<span id="pageTotal">{0}</span>\u6761\u8bb0\u5f55
 &raquo;
 
 
-日期插件WdatePicker的使用：
+**日期插件WdatePicker的使用：
 （1）下载WdatePicker.js（包括lang和skin文件夹）。
 （2）在html页面中导入WdatePicker.js。
 （3）在输入框input元素上加入class="Wdate" onFocus="WdatePicker({dateFmt:'yyyy-MM-dd',maxDate:'#F{$dp.$D(\'beginDate\')}'})"代码。
-开始日期-maxDate:'#F{$dp.$D(\'endDate\')||\'new Date()\'}'
-结束日期-minDate:'#F{$dp.$D(\'startDate\')}',maxDate:new Date()
-这里的maxDate和minDate后的是标准写法，不能把endDate换成其他的，如createDate
+开始日期-maxDate:'#F{$dp.$D(\'endDate\')||\'new Date()\'}'，里面的endDate对应结束日期的id
+结束日期-minDate:'#F{$dp.$D(\'startDate\')}',maxDate:new Date()，里面的startDate对应开始日期的id
 （4）打开页面查看效果。
-推荐格式：id="beginDate"和id="endDate"日期插件才能定位到当前标签正下方显示
-<input type="text" id="beginDate" name="createTimeBegin" value="${createTimeBegin}" class="text Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss', maxDate: '#F{$dp.$D(\'endDate\')}'});" />
+推荐格式：开始日期的id和结束日期的minDate里的名称相同才能起到作用，同理，结束日期的id和开始日期的maxDate里的名称相同才能起到作用。
+这样日期插件才能定位到当前标签正下方显示。如下：
+<td>
+    <input type="text" id="createTmBegin" name="createTmBegin" value="${createTimeBegin}"
+           class="text Wdate"
+           onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss', maxDate: '#F{$dp.$D(\'createTmEnd\')}'});"/>
+</td>
+<td>&nbsp;&#150;</td>
+<td>
+    <input type="text" id="createTmEnd" name="createTmEnd" value="${createTimeEnd}" class="text Wdate"
+           onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss', minDate: '#F{$dp.$D(\'createTmBegin\')}'});"/>
+</td>
+
 
 表table内的元素CSS样式：
 .myTable th{
@@ -336,6 +346,8 @@ showContentList[0]
     var a = '${showContentList[0]}';
     [@flash_message /]
 
+**freemarker中判断字符串数组是否含有 某个字符串：
+[#if role.authorities?seq_contains("admin:storeActivityModel")] checked="checked"[/#if]
 
 /*页面的标签的 宽高是auto 是因为这些标签不是块元素，是inline的，需要设成display:block才能进行设置 宽高
 display:inline
@@ -924,18 +936,24 @@ js中
                                             })
                                             return false;
                                         }
-                                        $("#beginTm").val(beginTm);
-                                        $("#endTm").val(endTm);
-                                        $("#inputForm").submit();
+                                        if($beginDay == $endDay && $beginTime > $endTime) { //时间的值可互相比较，如2017-8-15==2017-8-15和23:00>11:00，这时满足提交，提示报错。
+                                            layer.msg("活动开始时间不能晚于活动结束时间！",{icon:2,offset:'t'});
+                                            return false;
+                                        }
+                                        layer.confirm('确定保存“'+title+'”？',{icon:3,title:['提示','background-color:#CD4344;color:#FFFFFF']},function () {
+                                            $("#beginTm").val(beginTm);
+                                            $("#endTm").val(endTm);
+                                            $("#inputForm").submit();
+                                        })
                                     });
                                 });
                             </script>
 
 
 
-                            **控制标签的层次显示：让一个div层浮在最上层的方法：z-index:auto;越大代表越置前，如可定义为： z-index:9999。若定义为-1，代表为最底层。
-                            **如何在freemarker中遍历list时进行计数，然后条件成立时跳出list循环：如下：
-                            定义循环外部变量,然后在循环内部累加,最后做判断，用'<#break>'可以跳出<#list></#list>循环
+**控制标签的层次显示：让一个div层浮在最上层的方法：z-index:auto;越大代表越置前，如可定义为： z-index:9999。若定义为-1，代表为最底层。
+**如何在freemarker中遍历list时进行计数，然后条件成立时跳出list循环：如下：
+定义循环外部变量,然后在循环内部累加,最后做判断，用'<#break>'可以跳出<#list></#list>循环
                             <#if (articleList)??>
                                 <#assign x=0 />
                                 <#list articleList?sort_by(["wa_postdate"])?reverse  as item>
@@ -997,3 +1015,65 @@ js中
                                 }
                                 这样，子标签将整齐的排成一列，且不会互相重叠，而且可根据子标签内的子标签内容高度调整子标签的高度，
                                 但是宽度都是固定的
+
+
+**使用ajaxFileUpload.js来实现异步上传文件：
+                                1.body中的代码：
+                                <th>活动海报:</th>
+                                <td class="move">
+                                    <div>
+                                        [#if showActivity.photoUrl??]
+                                            <img id="source" src="${showActivity.photoUrl}" width="300px" height="150px" onclick="$('#multipartFile').click();"/>
+                                        [#else]
+                                            <a href="#" id="addPhoto" class="iconButton" onclick="$('#multipartFile').click();" style="z-index: 10">
+                                                <span class="addIcon">&nbsp;</span>请添加活动海报
+                                            </a>
+                                            <img id="source" src="" width="300px" height="150px" onclick="$('#multipartFile').click();" style="display:none"/>
+                                        [/#if]
+                                            <input type="file" id="multipartFile" name="multipartFile" value="${showActivity.photoUrl}" title=""/>
+                                        <input type="hidden" id="photoUrl" name="photoUrl" value="${showActivity.photoUrl}" />
+                                    </div>
+                                </td>
+                                2.css中的样式：
+                                .move{
+                                    position: relative;
+                                }
+                                .move input{
+                                    opacity:0;
+                                    filter:alpha(opacity=0);
+                                    height: 150px;
+                                    width: 300px;
+                                    position: absolute;
+                                    top: 5px;
+                                    left: 5px;
+                                    z-index: 9;
+                                }
+                                .move div{
+                                    height: 150px;
+                                    width: 300px;
+                                }
+                                3.js中的方法：
+                                $('#multipartFile').change(function(){
+                                    var file = $("#multipartFile").val();
+                                    if( !file.match( /.jpg|.gif|.png|.bmp/i ) ){
+                                        layer.msg("图片格式错误！",{icon:2,offset:'t'});
+                                        return false;
+                                    }
+                                    $.ajaxFileUpload({
+                                        url: '${base}/admin/store_activity_model/uploadOnePhoto.cgi?inputId=multipartFile',
+                                        secureuri : false,
+                                        fileElementId: 'multipartFile',
+                                        dataType: 'json',
+                                        async: false,
+                                        success: function (data) {
+                                            if(data.result === 'success') {
+                                                $("#source").attr("src", data.url);
+                                                $("#photoUrl").val(data.url);
+                                                $("#addPhoto").css("display", "none");
+                                                $("#source").css("display", "");
+                                            }else {
+                                                layer.msg("出现异常：" + data.msg, {icon:2,offset:'t'});
+                                            }
+                                        }
+                                    });
+                                });

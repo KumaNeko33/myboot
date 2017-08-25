@@ -12,8 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.UnsupportedEncodingException;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
@@ -36,7 +39,29 @@ public class StoreController {
         StoreDto storeDto = StoreDto.builder()
 //                .storeId(16L)
                 .build();
-
+        //普通的获取年月日 时分秒
+        Calendar calendar = Calendar.getInstance();
+        System.out.println(calendar.get(Calendar.YEAR));
+        System.out.println(calendar.get(Calendar.MONTH)); //0-11
+        System.out.println(calendar.get(Calendar.DAY_OF_MONTH));
+        System.out.println(calendar.get(Calendar.HOUR_OF_DAY));
+        System.out.println(calendar.get(Calendar.MINUTE));
+        System.out.println(calendar.get(Calendar.SECOND));
+        //java8获取年月日 时分秒
+        LocalDateTime ldt = LocalDateTime.now();
+        System.out.println(ldt.getYear());
+        System.out.println(ldt.getMonthValue()); //1-12
+        System.out.println(ldt.getDayOfMonth());
+        System.out.println(ldt.getHour());
+        System.out.println(ldt.getMinute());
+        System.out.println(ldt.getSecond());
+        try {
+//            怎样将GB2312编码的字符串转换为ISO-8859-1编码的字符串？
+            String name = "哈哈";
+            String newName = new String(name.getBytes("GB2312"), "ISO-8859-1");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         Clock clock = Clock.systemDefaultZone();
         long millis = clock.millis();
         Instant instant = clock.instant();
@@ -313,7 +338,7 @@ public class StoreController {
 //    4.关键字——散列函数（哈希函数）——散列地址
 //    优点：一对一的查找效率很高；
 //    缺点：一个关键字可能对应多个散列地址；需要查找一个范围时，效果不好。
-//    散列冲突：不同的关键字经过散列函数的计算得到了相同的散列地址。  解决办法：链表？
+//    散列冲突：不同的关键字经过散列函数的计算得到了相同的散列地址。  解决办法：数组加链表
 //    好的散列函数=计算简单+分布均匀（计算得到的散列地址分布均匀）
 //    哈希表是种数据结构，它可以提供快速的插入操作和查找操作。
 
@@ -366,3 +391,15 @@ public class StoreController {
 //    resize()扩容的时候，方法里又将Entry链的顺序反转了
 
 }
+
+
+//.一道关于飞机加油的问题，已知：
+//        每个飞机只有一个油箱，
+//        飞机之间可以相互加油（注意是相互，没有加油机）
+//        一箱油可供一架飞机绕地球飞半圈，
+//        问题：
+//        为使至少一架飞机绕地球一圈回到起飞时的飞机场，至少需要出动几架飞机？
+//        （所有飞机从同一机场起飞，而且必须安全返回机场，不允许中途降落，中间没有飞机场）
+//    飞1/8时；a、b、c剩3/8，c分a、b各1/8，a、b剩4/8,4/8， 飞1/4时，3/8,3/8,b给a1/8，飞回， a4/8  飞到3/4，a飞到1/2时，b、c装满油倒飞回来1/8位置，bc剩3/8,c给b加油2/8后飞回，b剩5/8,这时a剩1/4油，然后a飞到3/4，b倒飞到1/4，a0油，b1/2，分给a1/4，刚好两架飞机飞回
+//            假定让飞机a，飞回终点，邮箱最多能装1/2路程的油，就是说飞机a飞到1/2路程时，后面还需要加1/2油
+//故三架飞机即可
