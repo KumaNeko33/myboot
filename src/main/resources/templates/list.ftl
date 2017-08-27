@@ -274,16 +274,26 @@ admin.page.total=\u5171<span id="pageTotal">{0}</span>\u6761\u8bb0\u5f55
 &raquo;
 
 
-日期插件WdatePicker的使用：
+**日期插件WdatePicker的使用：
 （1）下载WdatePicker.js（包括lang和skin文件夹）。
 （2）在html页面中导入WdatePicker.js。
 （3）在输入框input元素上加入class="Wdate" onFocus="WdatePicker({dateFmt:'yyyy-MM-dd',maxDate:'#F{$dp.$D(\'beginDate\')}'})"代码。
-开始日期-maxDate:'#F{$dp.$D(\'endDate\')||\'new Date()\'}'
-结束日期-minDate:'#F{$dp.$D(\'startDate\')}',maxDate:new Date()
-这里的maxDate和minDate后的是标准写法，不能把endDate换成其他的，如createDate
+开始日期-maxDate:'#F{$dp.$D(\'endDate\')||\'new Date()\'}'，里面的endDate对应结束日期的id
+结束日期-minDate:'#F{$dp.$D(\'startDate\')}',maxDate:new Date()，里面的startDate对应开始日期的id
 （4）打开页面查看效果。
-推荐格式：id="beginDate"和id="endDate"日期插件才能定位到当前标签正下方显示
-<input type="text" id="beginDate" name="createTimeBegin" value="${createTimeBegin}" class="text Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss', maxDate: '#F{$dp.$D(\'endDate\')}'});" />
+推荐格式：开始日期的id和结束日期的minDate里的名称相同才能起到作用，同理，结束日期的id和开始日期的maxDate里的名称相同才能起到作用。
+这样日期插件才能定位到当前标签正下方显示。如下：
+<td>
+    <input type="text" id="createTmBegin" name="createTmBegin" value="${createTimeBegin}"
+           class="text Wdate"
+           onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss', maxDate: '#F{$dp.$D(\'createTmEnd\')}'});"/>
+</td>
+<td>&nbsp;&#150;</td>
+<td>
+    <input type="text" id="createTmEnd" name="createTmEnd" value="${createTimeEnd}" class="text Wdate"
+           onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss', minDate: '#F{$dp.$D(\'createTmBegin\')}'});"/>
+</td>
+
 
 表table内的元素CSS样式：
 .myTable th{
@@ -329,10 +339,15 @@ String userName = userPrincipal.getName();获取登录用户名
 /extend/layer.ext.js  //用于prompt弹窗
 
 //freemarker中前端获取 后端传过来的 list集合的单个值
-${showContentList[0]}
+    ${showContentList[0]}
 //普通页面应该也行得通
 showContentList[0]
+//js中通过freemarker的方式获取后端传过来的 值：两边加引号即可，如：
+    var a = '${showContentList[0]}';
+    [@flash_message /]
 
+**freemarker中判断字符串数组是否含有 某个字符串：
+[#if role.authorities?seq_contains("admin:storeActivityModel")] checked="checked"[/#if]
 
 /*页面的标签的 宽高是auto 是因为这些标签不是块元素，是inline的，需要设成display:block才能进行设置 宽高
 display:inline
@@ -353,3 +368,712 @@ font-size决定匿名框，匿名框构成内容区，内容区加行间距得�
 
 所以，你的字体是16px，但元素高度大于16
 */
+
+layer弹出的页面层：在content中写入html标签后，和jQuery的$.dialog()方法类似：
+layer弹出的页面层，是当前页面的一部分，即插入到当前页面 的body中
+所以可以直接通过onclick()调用当前页面的javascript方法
+layer弹出层也可以使用freemarker，然后javascript的加载先于freemarker语法
+layer弹出层的content可以接收之前javascript的代码（title也可以），在content中写入html标签后，加个 ' + 前面用var声明的元素 + '  如：
+var a = 'aaaa';
+layer.open({
+    content:'<div>'+a+'<\/div>',
+});
+    layer弹出层的content里面的html标签可以调用javascript方法，可以通过隐藏域来存储值，然后在调用的javascript方法通过$("#id")选择器来获取
+原理：layer弹出层的html标签，虽然无法和当前页面的其他标签进行交互，但是仍然可以调用当前页面的js方法，所以可以通过js方法来实现 layer弹出层的html标签和当前页面的标签的传值互动,如下：
+<script type="text/javascript">
+    $(function () {
+        $(".status").click(function () {
+            var id = $(this).attr("data-id");
+            $("#changeFlagModelId").val(id);
+            var status = $(this).attr("data-status");
+//                var content = $(this).attr("data-content");
+            var countModel = $("#countModel").val();
+            var message = "确定下架该卖家秀内容模板？";
+            if(status) {
+                if(countModel == 4) {
+                    message = "请最少保留4个内容模板！";
+                    layer.msg(message,{icon:2});
+                    return false;
+                }
+            }
+            if(!status) {
+                if(countModel == 4) {
+                    message = "最多上架4个，需选择下面某个模版下架才可上架此模版";
+                    layer.open({
+                        title: [message, 'font-size:15px;padding:0 0 0 15px'],
+                        [@compress single_line = true]
+                        content:'<table>
+                            [#--<tr>--]
+                                [#--<td class=\"myButton\"><button data-id=\"${showContentList[0].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[0].content?html, 14, "...")}<\/button>--]
+                                [#--<\/td>--]
+                                [#--<td class=\"myButton\"><button data-id=\"${showContentList[1].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[1].content?html, 14, "...")}<\/button>--]
+                                [#--<\/td>--]
+                            [#--<\/tr>--]
+                            [#--<tr>--]
+                                [#--<td class=\"myButton\"><button data-id=\"${showContentList[2].id}\" onclick=\"changeFlag(this)\">${abbreviate(showContentList[2].content?html, 14, "...")}<\/button>--]
+                                [#--<\/td>--]
+                                [#--<td class=\"myButton\"><button data-id=\"${showContentList[3].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[3].content?html, 14, "...")}<\/button>--]
+                                [#--<\/td>--]
+                            [#--<\/tr>--]
+                        [#--<\/table>',--]
+                        [#--上面是当showContentList为空时无法通过页面编译的版本，于是改成下面这种可以骗过编译器，不使用明文的索引调用list，使用showContent_index来调用--]
+                            [#if showContentList??]
+                                [#list showContentList as showContent]
+                                    [#if showContent_index = 0]
+                                    <tr>
+                                    <td class=\"myButton\"><button data-id=\"${showContentList[showContent_index].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[showContent_index].content?html, 14, "...")}<\/button>
+//                                    ${abbreviate(showContentList[showContent_index].content?html, 14, "...")}大于14字符的内容用...表示
+                                    <\/td>
+                                    [/#if]
+                                    [#if showContent_index = 1]
+                                    <td class=\"myButton\"><button data-id=\"${showContentList[showContent_index].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[showContent_index].content?html, 14, "...")}<\/button>
+                                    <\/td>
+                                    <\/tr>
+                                    [/#if]
+                                    [#if showContent_index = 2]
+                                    <tr>
+                                    <td class=\"myButton\"><button data-id=\"${showContentList[showContent_index].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[showContent_index].content?html, 14, "...")}<\/button>
+                                    <\/td>
+                                    [/#if]
+                                    [#if showContent_index = 3]
+                                    <td class=\"myButton\"><button data-id=\"${showContentList[showContent_index].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[showContent_index].content?html, 14, "...")}<\/button>
+                                    <\/td>
+                                    <\/tr>
+                                    [/#if]
+                                [/#list]
+                            [/#if]
+                        <\/table>',
+                        [/@compress]
+                        area: ['400px','225px'],
+                        closeBtn: 0,
+                    })
+                }
+                return false;
+            }
+            layer.confirm(message, {icon: 3, title:'提示'},function (index) {
+                $("#flag").val(!status);
+                $("#id").val(id);
+                $("#updateShowModelFlag").submit();
+                layer.close(index);
+            })
+        });
+        $("#addButtion").click(function () {
+            layer.prompt({
+                title: "设置模板内容（最多15字）",
+                formType: 2,
+                area:['350px','225px'],
+                closeBtn: 0,
+                maxlength: 15,
+            },function (value, index, elem) {
+                $("#storeModelContent").val(value);
+                layer.confirm('确认保存？',{icon: 3, title:'提示'},function (index) {
+                    $("#saveShowModel").submit();
+                    layer.close(index);
+                });
+                layer.close(index);
+            });
+        });
+        $(".editModel").click(function () {
+            var id = $(this).attr("data-id");
+            var content = $(this).attr("data-content");
+            layer.prompt({
+                title: "设置模板内容（最多15字）",
+                formType: 2,
+                area:['350px','225px'],
+                closeBtn: 0,
+                maxlength: 15,
+                value: content,
+            },function (value, index, elem) {
+                $("#storeModelId").val(id);
+                $("#updateModelContent").val(value);
+                $("#updateShowModel").submit();
+                layer.close(index);
+            })
+        });
+</script>
+<body>
+<input type="hidden" id="changeFlagModelId" name="changeFlagModelId"/>
+</body>
+<script type="text/javascript">
+    function changeFlag(e) {
+        var id = $(e).attr("data-id");
+        var preId = $("#changeFlagModelId").val();
+        var content = $(e).attr("data-content");
+        layer.confirm('确定下架该模板？',{icon:3,title:'提示'},function (index) {
+            $("#id").val(id);
+            $("#storeModelPreId").val(preId);
+            $("#flag").val(false);
+            $("#updateShowModelFlag").submit();
+            layer.close(index);
+        })
+    }
+</script>
+
+
+使用input type="submit"来提交表单form，后端用VO对象来封装表单数据，这时要注意的是表单中没有 name属性在VO对象中没有对应字段的 多余的标签，如隐藏域的标签不应该放在该form中
+字符串类型的非空和非null判断应该用StringUtils.isNotEmpty(str)
+
+后台传来的json
+
+
+mybatis中使用mapper3如何进行分页关联查询:
+mapper3无法实现，需要自己手动分页关联查询：
+使用注解@Select和@Results
+如：
+@Mapper
+public interface ShowDzLogMapper extends BaseMapper<ShowDzLog> {
+    @Select({"<script>",
+    "SELECT A.ID,B.ID DZ_LOG_ID,B.CREATE_BY STORE_ID,B.CREATE_BY_NAME STORE_NAME,B.STORE_ICON_URL,C.PHOTO_URL,B.CREATE_TM "+
+    "FROM STORE_SHOW A,SHOW_DZ_LOG B,SHOW_PHOTO C "+
+    "WHERE B.SHOW_ID=A.ID AND C.ID=(SELECT MIN(ID) FROM SHOW_PHOTO P WHERE P.SHOW_ID=A.ID) " +
+    "AND B.DZ_CHANNEL='APP' AND A.STORE_ID = #{storeId} AND B.CREATE_BY != #{storeId} " +
+    "<if test=' lastId &gt; 0'>"+
+    "AND B.ID &lt; #{lastId} "+
+    "</if>"+
+    "ORDER BY B.ID DESC "+
+    "LIMIT 0,#{pageSize}" ,
+            "</script>"})
+    @Results({
+    @Result(property = "dzLogId",  column = "DZ_LOG_ID"),
+    @Result(property = "storeId",  column = "STORE_ID"),
+    @Result(property = "storeName", column = "STORE_NAME"),
+    @Result(property = "storeIconUrl", column = "STORE_ICON_URL"),
+    @Result(property = "photoUrl", column = "PHOTO_URL"),
+    @Result(property = "createTm", column = "CREATE_TM")
+    })
+    public List<ShowDzLogDto> getReadedLogs(@Param("storeId") Long storeId, @Param("lastId") Long lastId, @Param("pageSize") Integer pageSize);
+
+    //关联查询的对象也是一个表，也有一个对应mapper时
+    @Select("SELECT * FROM inputParam WHERE inputParamId = #{id}")
+    @Results({
+    //查询关联对象
+    @Result(property = "api",
+    column = "apiId",
+    one = @One(select = "com.tuya.mapper.ApiMapper.selectById"))
+    })
+    InputParam selectById(@Param("id") int id);
+}
+
+
+但是我的项目中用的是Criteria的拼接查询，@Select()内的语句很难写，于是只能通过Mapper3的分页查询后，再对结果进行关联赋值了：
+@Override
+public ResponseDto<PageDto<TyreBrandPatternSettingListDto>> getPage(TyreBrandPatternSettingSearchDto searchDto) {
+    Example e=new Example(TyreBrandPatternSetting.class);
+    Example.Criteria c = e.createCriteria();
+    //排序
+    if(StringUtils.isEmpty(searchDto.getSort())){
+    e.setOrderByClause("id");
+    }else{
+    e.setOrderByClause(searchDto.getSort());
+    }
+    //根据品牌查询
+    if(null != searchDto.getTyreBrandId()){
+    c.andEqualTo("tyreBrandId",searchDto.getTyreBrandId());
+    }
+    //根据花纹查询
+    if(StringUtils.isNotEmpty(searchDto.getTyrePattern())){
+    c.andLike("tyrePatternName",searchDto.getTyrePattern());
+    }
+    PageRowBounds bounds = new PageRowBounds(searchDto.getOffset(), searchDto.getPageSize());
+    List<TyreBrandPatternSetting> list = mapper.selectByExampleAndRowBounds(e,bounds);
+        return ResponseDtoFactory.toSuccess("",new PageDto<>(searchDto,toDtos(list),bounds.getTotal().intValue()));//里面的toDtos(list)调用下面的方法
+}
+
+private List<TyreBrandPatternSettingListDto> toDtos(List<TyreBrandPatternSetting> entitys){//将查询结果list转成数据传输用的listDto，于是我在这步进行关联赋值
+    List<TyreBrandPatternSettingListDto> dtos = new ArrayList<>();
+    if(null != entitys && entitys.size() > 0)
+    for(TyreBrandPatternSetting entity : entitys){
+        if(entity != null){
+            //TyreBrandPatternSetting类和对应数据表中只含有 轮胎类型（在数据库也有对应的表） 的id
+            String tyreType = tyreTypeMapper.selectByPrimaryKey(entity.getTyreType()).getName();//在这里给Mapper3的分页查询后的结果进行关联赋值，设置轮胎类型的名称
+            TyreBrandPatternSettingListDto dto = new TyreBrandPatternSettingListDto(entity.getId(), entity.getTyreBrandName(), entity.getTyrePatternName(),tyreType, entity.getTyreInsFlag(), entity.getPhotoUrl());
+            dtos.add(dto);
+        }
+    }
+    return dtos;
+}
+
+//实体类listDto
+@Data
+public class TyreBrandPatternSettingListDto extends BaseDto {
+
+    /** 轮胎品牌名称 */
+    private String tyreBrandName;
+    /** 轮胎花纹名称 */
+    private String tyrePatternName;
+    /** 轮胎类型 */
+    private String tyreType;
+    /** 是否参加轮胎保： 1:是，0:否 */
+    private Boolean tyreInsFlag;
+    /** 图片URL */
+    private String photoUrl;
+
+    public TyreBrandPatternSettingListDto() {
+    }
+
+    public TyreBrandPatternSettingListDto(Long id, String tyreBrandName, String tyrePatternName,String tyreType, Boolean tyreInsFlag, String photoUrl) {
+    super(id);
+    this.tyreBrandName = tyreBrandName;
+    this.tyrePatternName = tyrePatternName;
+    this.tyreType = tyreType;
+    this.tyreInsFlag = tyreInsFlag;
+    this.photoUrl = photoUrl;
+    }
+}
+
+//TyreBrandPatternSetting实体类对象，对应数据库表TYRE_BRAND_PATTERN_SETTING
+@Data
+@Table(name = "TYRE_BRAND_PATTERN_SETTING")
+public class TyreBrandPatternSetting extends BaseEntity {
+    /** 轮胎品牌ID */
+    private Integer tyreBrandId;
+    /** 轮胎品牌名称 */
+    private String tyreBrandName;
+    /** 轮胎花纹ID */
+    private Integer tyrePatternId;
+    /** 轮胎花纹名称 */
+    private String tyrePatternName;
+    /** 是否参加轮胎保： 1:是，0:否 */
+    private Boolean tyreInsFlag;
+    /** 图片URL */
+    private String photoUrl;
+    /** 创建人 */
+    private String createBy;
+    /** 创建时间 */
+    private Timestamp createTm;
+    /** 修改人 */
+    private String modifyBy;
+    /** 修改时间 */
+    private Timestamp modifyTm;
+    /** 轮胎类型 */
+    private Integer tyreType;
+}
+
+
+调用API接口的方法，API接口的方法中传递数据的对象DTO需要实现序列化implement java.io.Serializable
+                        操作数据库的DO也要实现系列化
+
+                        优化思想：
+                <select id="status" name="availableFlag" class="selected">
+                    <option value="">${message("admin.common.choose")}</option>
+                    [#if showModelSearchDto.availableFlag?? && showModelSearchDto.availableFlag]
+                        <option value="true" selected="selected">${message("admin.sellerShowModel.status.true")}</option>
+                        <option value="false">${message("admin.sellerShowModel.status.false")}</option>
+                    [#elseif ]
+                        <option value="true">${message("admin.sellerShowModel.status.true")}</option>
+                        <option value="false" selected="selected">${message("admin.sellerShowModel.status.false")}</option>
+                    [#else]
+                        <option value="true">${message("admin.sellerShowModel.status.true")}</option>
+                        <option value="false">${message("admin.sellerShowModel.status.false")}</option>
+                    [/#if]
+                </select>
+                        优化后：
+                <select id="status" name="availableFlag" class="selected">
+                    <option value="">${message("admin.common.choose")}</option>
+                    <option value="true" [#if showModelSearchDto.availableFlag?? && showModelSearchDto.availableFlag]selected="selected"[/#if]>${message("admin.sellerShowModel.status.true")}</option>
+                    <option value="false" [#if showModelSearchDto.availableFlag?? && !showModelSearchDto.availableFlag]selected="selected"[/#if]>${message("admin.sellerShowModel.status.false")}</option>
+                </select>
+
+
+在用对象的属性进行真假条件判断时，需要保证这个对象的属性不为空，不然会报空指针异常NullpointException
+    如：
+        if (null != modelSearchDto.getAvailableFlag() && modelSearchDto.getAvailableFlag()) {
+        //如果在除第一页的其他页进行上架的搜索，默认从第一页开始
+            searchDto.setCurrentPage(1);
+        }
+
+
+
+易错：freemarker中的？length gt 20是根据问号之前的数据类型来判断是 字母数 还是 文字数。一个西文字符一个字节，一个中文字符两个字节，如：
+[#if showInfo.content?html?length gt 20]//如果content内容为文字，则这里判断的是 文字个数大于20则条件成立；如果content内容是字母，则这里判断的是 字节个数大于20则条件成立
+    <a  href="javascript:;" style="font-family : 微软雅黑,宋体;color: #00F;" onclick="tips(this)" value="${showInfo.content?html}">[${message("admin.sellerShow.viewAll")}]</a>
+[/#if]
+
+
+//实现从新窗口打开点击一张图片，target="_blank"
+<a href="${storeActivity.photoUrl}" target="_blank">
+    <img src="${storeActivity.photoUrl}_32x32" width="40" height="40">
+</a>
+js中
+
+
+
+@Service(version="1.0.0",group = "spring.dubbo.group",timeout = 6000)
+该注解配置了dubbo的服务
+
+**两步实现springmvc中string转化成Timestamp类型：
+                            1.创建CustomerTimestampEditor类：
+                            package net.showcoo;
+
+                            import org.springframework.util.StringUtils;
+
+                            import java.beans.PropertyEditorSupport;
+                            import java.sql.Timestamp;
+                            import java.text.ParseException;
+                            import java.text.SimpleDateFormat;
+
+                            /**
+                            * @Author: MiaoHongShuai
+                            * @Description: 字符串转为Timestamp
+                            * @Date: Created on 2017/8/21
+                            * @Modified By:
+                            */
+                            public class CustomTimestampEditor extends PropertyEditorSupport{
+                                    private final SimpleDateFormat dateFormat;
+                                    private final boolean allowEmpty;
+                                    private final int exactDateLength;
+
+                                public CustomTimestampEditor(SimpleDateFormat dateFormat, boolean allowEmpty) {
+                                    this.dateFormat = dateFormat;
+                                    this.allowEmpty = allowEmpty;
+                                    this.exactDateLength = -1;
+                                }
+
+                                public CustomTimestampEditor(SimpleDateFormat dateFormat,
+                                boolean allowEmpty, int exactDateLength) {
+                                    this.dateFormat = dateFormat;
+                                    this.allowEmpty = allowEmpty;
+                                    this.exactDateLength = exactDateLength;
+                                }
+
+                                public void setAsText(String text) throws IllegalArgumentException {
+                                    if ((this.allowEmpty) && (!(StringUtils.hasText(text)))) {
+                                    setValue(null);
+                                    } else {
+                                    if ((text != null) && (this.exactDateLength >= 0)
+                                        && (text.length() != this.exactDateLength)) {
+                                        throw new IllegalArgumentException(
+                                            "Could not parse date: it is not exactly"
+                                            + this.exactDateLength + "characters long");
+                                    }
+                                    try {
+                                        setValue(new Timestamp(this.dateFormat.parse(text).getTime()));
+                                        } catch (ParseException ex) {
+                                            throw new IllegalArgumentException("Could not parse date: "
+                                        + ex.getMessage(), ex);
+                                        }
+                                    }
+                                }
+
+                                public String getAsText() {
+                                    Timestamp value = (Timestamp) getValue();
+                                    return ((value != null) ? this.dateFormat.format(value) : "");
+                                }
+                            }
+
+                            2.controller中添加注解代码：
+                            @InitBinder
+                            public void initBinder(WebDataBinder binder) {
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            binder.registerCustomEditor(Timestamp.class, new CustomTimestampEditor(dateFormat, true));
+                            }
+
+
+
+**页面使用ajaxFileUpload实现点击图片弹出 文件上传框，确认后图片上传后显示在页面原来的地方覆盖原图片，且不显示input标签的“未选择任何文件”；
+        如果showActivity.photoUrl为空，则说明是新增门店活动，于是切换成添加活动海报的按钮和显示框：
+                            1.body中的代码：
+                            <tr>
+                                <th>活动海报:</th>
+                                <td class="move">
+                                    <div>
+                                    [#if showActivity.photoUrl??]
+                                        <img id="source" src="${showActivity.photoUrl}" width="300px" height="150px" onclick="$('#multipartFile').click();"/>
+                                    [#else]
+                                        <a href="#" id="addPhoto" class="iconButton" onclick="$('#multipartFile').click();" style="z-index: 10">
+                                            <span class="addIcon">&nbsp;</span>请添加活动海报
+                                        </a>
+                                        <img id="source" src="" width="300px" height="150px" onclick="$('#multipartFile').click();" style="display:none"/>
+                                    [/#if]
+                                        <input type="file" id="multipartFile" name="multipartFile" value="${showActivity.photoUrl}" title=""/>
+                                        <input type="hidden" id="photoUrl" name="photoUrl" value="${showActivity.photoUrl}" />
+                                    </div>
+                                </td>
+                            </tr>
+                            2.css样式：使原本的file上传input按钮的透明化，position: relative;表示父标签位置相对，position: absolute;表示子标签位置相对于父标签是绝对的
+                            ，这里的top和left指子标签相对父标签内容右上角的相对距离
+                            <style type="text/css">
+                                .move{
+                                    position: relative;
+                                }
+                                .move input{
+                                    opacity:0;
+                                    filter:alpha(opacity=0);
+                                    height: 150px;
+                                    width: 300px;
+                                    position: absolute;
+                                    top: 5px;
+                                    left: 5px;
+                                    z-index: 9;
+                                }
+                            </style>
+                            3.js中的方法：给文件上传input按钮绑定改变触发事件
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $('#multipartFile').change(function(){
+                                        var file = $("#multipartFile").val();
+                                        if( !file.match( /.jpg|.gif|.png|.bmp/i ) ){//正则检验文件的后缀名是否为图片格式
+                                            $.dialog({
+                                                type: 'warn',
+                                                content: '图片格式错误！',
+                                            });
+                                            return false;
+                                        }
+                                        $.ajaxFileUpload({
+                                            url: '${base}/admin/store_activity_model/uploadOnePhoto.cgi?inputId=multipartFile',
+                                            secureuri : false,
+                                            fileElementId: 'multipartFile',
+                                            dataType: 'json',
+                                            async: false,
+                                            success: function (data) {
+                                                if(data.result === 'success') {
+                                                    $("#source").attr("src", data.url);
+                                                    $("#photoUrl").val(data.url);
+                                                }else {
+                                                    $.dialog({
+                                                        type: 'warn',
+                                                        content: '出现异常：'+data.msg+'',
+                                                    });
+                                                }
+                                            }
+                                        });
+                                    });
+                                });
+                            </script>
+
+
+**日期插件Wdate的扩展应用：实现年月日和时分的分开输入，并且设置默认的时分值，最后输入的年月日和时分合并为一个时间传给后端
+                            1.body中的代码：
+                            <tr>
+                                <th>
+                                    活动开始时间:
+                                </th>
+                                <td id="begin">
+                                    <input type="text" id="beginDate" value="${beginDay}"
+                                           class="text Wdate"
+                                           onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd', maxDate: '#F{$dp.$D(\'endDate\')}'});"/>
+                                    <input type="text" id="beginTime" value="${beginTime}"  //原来这里的id不必为beginDate，和结束时间的minDate里的名称对应即可
+                                           class="text Wdate"
+                                           onfocus="WdatePicker({dateFmt: 'HH:mm'});"/>  //注意：这里开始时分不设置 对应结束时分的上限，因为两者互相可大可小，时间的先后顺序交给 年月日 来控制
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    活动结束时间:
+                                </th>
+                                <td id="end">
+                                    <input type="text" id="endDate" value="${endDay}" class="text Wdate"
+                                           onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd', minDate: '#F{$dp.$D(\'beginDate\')}'});"/>
+                                    <input type="text" id="endTime" value="${endTime}" class="text Wdate" //原来这里的id不必为endDate，和结束时间的maxDate里的名称对应即可
+                                           onfocus="WdatePicker({dateFmt: 'HH:mm'});"/> //注意：这里结束时分不设置 对应开始时分的下限，因为两者互相可大可小，时间的先后顺序交给 年月日 来控制
+                                </td>
+                            </tr>
+                            2.用freemarker处理后端传来的时间数据，转化成年月日和时分显示,没有的话设置默认值，WDate日期框默认值可为字符串：
+                            [#assign beginDay = ""]
+                            [#assign endDay = ""]
+                            [#assign beginTime = ""]
+                            [#assign endTime = ""]
+                            [#if showActivity??]
+                                [#if showActivity.beginTm??]
+                                    [#assign beginDay = showActivity.beginTm?string("yyyy-MM-dd")]
+                                    [#assign beginTime = showActivity.beginTm?string("HH:mm")]
+                                [#else]
+                                    [#assign beginDay = "请选择"]
+                                    [#assign beginTime = "00:00"]
+                                [/#if]
+                                [#if showActivity.endTm??]
+                                    [#assign endDay = showActivity.endTm?string("yyyy-MM-dd")]
+                                    [#assign endTime = showActivity.endTm?string("HH:mm")]
+                                [#else]
+                                    [#assign endDay = "请选择"]
+                                    [#assign endTime = "24:00"]
+                                [/#if]
+                            [/#if]
+                            3.js中的方法进行年月日和时分输入值合并成 一个时间（这个值赋给隐藏标签），并进行表单校验，然后提交表单传给后端：
+                            <form id="inputForm" action="update.cgi" method="post" enctype="multipart/form-data">
+                                <input type="hidden" name="id" value="${showActivity.id}" />
+                                <input type="hidden" id="beginTm" name="beginTm" />
+                                <input type="hidden" id="endTm" name="endTm" />
+                                ...
+                            </form>
+                            js:
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $("#submitBtn").click(function () {
+                                        var $beginDay = $("#begin").children(":eq(0)").val();
+                                        var $beginTime = $("#begin").children(":eq(1)").val();
+                                        var $endDay = $("#end").children(":eq(0)").val();
+                                        var $endTime = $("#end").children(":eq(1)").val();
+                                        var beginTm = $beginDay + " " + $beginTime + ":00";
+                                        var endTm = $endDay + " " + $endTime + ":00";
+                                        if($beginDay == "请选择") {
+                                            $.dialog({
+                                                type: 'warn',
+                                                content: '活动开始时间不能为空！'
+                                            })
+                                            return false;
+                                        }
+                                        if($endDay == "请选择") {
+                                            $.dialog({
+                                                type: 'warn',
+                                                content: '活动结束时间不能为空!'
+                                            })
+                                            return false;
+                                        }
+                                        var title = $("#title").val();
+                                        if(title == null || title == "" || title == undefined) {
+                                            $.dialog({
+                                                type: 'warn',
+                                                content: '活动名称不能为空!'
+                                            })
+                                            return false;
+                                        }
+                                        var photoUrl = $("#photoUrl").val();
+                                        if(photoUrl == null || photoUrl == "" || photoUrl == undefined) {
+                                            $.dialog({
+                                                type: 'warn',
+                                                content: '活动海报不能为空!'
+                                            })
+                                            return false;
+                                        }
+                                        if($beginDay == $endDay && $beginTime > $endTime) { //时间的值可互相比较，如2017-8-15==2017-8-15和23:00>11:00，这时满足提交，提示报错。
+                                            layer.msg("活动开始时间不能晚于活动结束时间！",{icon:2,offset:'t'});
+                                            return false;
+                                        }
+                                        layer.confirm('确定保存“'+title+'”？',{icon:3,title:['提示','background-color:#CD4344;color:#FFFFFF']},function () {
+                                            $("#beginTm").val(beginTm);
+                                            $("#endTm").val(endTm);
+                                            $("#inputForm").submit();
+                                        })
+                                    });
+                                });
+                            </script>
+
+
+
+**控制标签的层次显示：让一个div层浮在最上层的方法：z-index:auto;越大代表越置前，如可定义为： z-index:9999。若定义为-1，代表为最底层。
+**如何在freemarker中遍历list时进行计数，然后条件成立时跳出list循环：如下：
+定义循环外部变量,然后在循环内部累加,最后做判断，用'<#break>'可以跳出<#list></#list>循环
+                            <#if (articleList)??>
+                                <#assign x=0 />
+                                <#list articleList?sort_by(["wa_postdate"])?reverse  as item>
+                                    <#if item.wa_recommend=='1' && item.wa_status=="1">
+                                        <#assign x=x+1 />
+                                        <li style="list-style-type:circle;color:#000000; margin-left:20px;">
+                                             <span style="display:block;height:24px;float:right;color:blue;font-size: 12px;margin-right:7px;"><@dateMonthOut item.wa_postdate/>
+                                             </span>
+                                            <span class="news_title">
+                                                <a href="${path}/web/article_newsViewA.do?wa_id=${(item.wa_id)!}"
+                                                   target="_blank">${ellipsis(item.wa_title,24)}</a>
+                                                <#if getBetweenDays(formatDate(item.wa_postdate),getNow("yyyy-MM-dd"))<=3>
+                                                    <img src="${path}/website/images/newnail.png"/>
+                                                </#if>
+                                            </span>
+                                        </li>
+                                    </#if>
+                                    <#if x == 4> <#break> </#if>
+                                </#list>
+                            </#if>
+                                我的项目的实际运用：只展示后端返回的List集合中最多三个storeActivity.availableFlag=true的活动模板
+                            $("#viewAppModelButton").click(function () {
+                                layer.open({
+                                title: ['APP模板页面','font-size:15px;color:#ffffff;text-align:center;margin:auto;display:block;padding:0 20px;background-color:#CD4344'],
+                                [@compress single_line = true]//freemarker的compress标签,将content内容压缩成一行
+                                content: '[#if storeActivityModelList??]
+                                [#assign x = 0]
+                                <div>
+                                [#list storeActivityModelList as storeActivity]
+                                    [#if storeActivity.availableFlag?? && storeActivity.availableFlag]
+                                        [#assign x = x + 1]
+                                    <div><strong>${storeActivity.title}<\/strong><\/div style=\"height:10%\" class=\"flex-item\">
+                                    <div style=\"height:10%\" class=\"flex-item\"><span style=\"font-size:13px\">${message("admin.storeActivity.startAndEndDate")}<\/span> :
+                                    <span style=\"font-size:13px\" >${storeActivity.beginTm} — ${storeActivity.endTm}<\/span><\/div>
+                                    <div style=\"height:45%\" class=\"flex-item\"><img src=\"${storeActivity.photoUrl}\" width=\"100%\" height=\"160px\"><\/div>
+                                    <div style=\"height:35%\" class=\"flex-item\"><p>${storeActivity.content}<\/p><\/div>
+                                        <br\/>
+                                    [/#if]
+                                    [#if x == 3][#break][/#if]
+                                [/#list]
+                                <\/div id=\"flex-container\">
+                                [/#if]',
+                                [/@compress]
+                                    area: ['375px','460px'],
+                                    closeBtn: 0,
+                                })
+                            });
+                                因为是竖向显示的弹窗，这里还采用了flex布局，使用方法：对父标签使用：
+                                #flex-container{
+                                    display: -webkit-flex;
+                                    display: flex;
+                                    -webkit-animation-direction: column;
+                                    flex-direction: column;
+                                }
+                                对父标签内的子标签使用：
+                                #flex-container .flex-iten{
+                                    -webkit-flex: auto;
+                                    flex: auto;//当存在剩余空间，则子标签将等分剩余空间（如果有的话）；当空间不足时，子标签都将等比例缩小。
+                                }
+                                这样，子标签将整齐的排成一列，且不会互相重叠，而且可根据子标签内的子标签内容高度调整子标签的高度，
+                                但是宽度都是固定的
+
+
+**使用ajaxFileUpload.js来实现异步上传文件：
+                                1.body中的代码：
+                                <th>活动海报:</th>
+                                <td class="move">
+                                    <div>
+                                        [#if showActivity.photoUrl??]
+                                            <img id="source" src="${showActivity.photoUrl}" width="300px" height="150px" onclick="$('#multipartFile').click();"/>
+                                        [#else]
+                                            <a href="#" id="addPhoto" class="iconButton" onclick="$('#multipartFile').click();" style="z-index: 10">
+                                                <span class="addIcon">&nbsp;</span>请添加活动海报
+                                            </a>
+                                            <img id="source" src="" width="300px" height="150px" onclick="$('#multipartFile').click();" style="display:none"/>
+                                        [/#if]
+                                            <input type="file" id="multipartFile" name="multipartFile" value="${showActivity.photoUrl}" title=""/>
+                                        <input type="hidden" id="photoUrl" name="photoUrl" value="${showActivity.photoUrl}" />
+                                    </div>
+                                </td>
+                                2.css中的样式：
+                                .move{
+                                    position: relative;
+                                }
+                                .move input{
+                                    opacity:0;
+                                    filter:alpha(opacity=0);
+                                    height: 150px;
+                                    width: 300px;
+                                    position: absolute;
+                                    top: 5px;
+                                    left: 5px;
+                                    z-index: 9;
+                                }
+                                .move div{
+                                    height: 150px;
+                                    width: 300px;
+                                }
+                                3.js中的方法：
+                                $('#multipartFile').change(function(){
+                                    var file = $("#multipartFile").val();
+                                    if( !file.match( /.jpg|.gif|.png|.bmp/i ) ){
+                                        layer.msg("图片格式错误！",{icon:2,offset:'t'});
+                                        return false;
+                                    }
+                                    $.ajaxFileUpload({
+                                        url: '${base}/admin/store_activity_model/uploadOnePhoto.cgi?inputId=multipartFile',
+                                        secureuri : false,
+                                        fileElementId: 'multipartFile',
+                                        dataType: 'json',
+                                        async: false,
+                                        success: function (data) {
+                                            if(data.result === 'success') {
+                                                $("#source").attr("src", data.url);
+                                                $("#photoUrl").val(data.url);
+                                                $("#addPhoto").css("display", "none");
+                                                $("#source").css("display", "");
+                                            }else {
+                                                layer.msg("出现异常：" + data.msg, {icon:2,offset:'t'});
+                                            }
+                                        }
+                                    });
+                                });

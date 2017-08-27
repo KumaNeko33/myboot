@@ -20,7 +20,10 @@ import java.util.List;
  * @Date: 2017/8/14
 */
 public class BeanCopyUtils extends BeanUtils {
-
+    /*
+    String[] ignoreProperties = {"beginTm","endTm"};//ignoreProperties用于添加不进行覆盖的字段，如日期类型不同覆盖会产生异常时，不覆盖日期类型"beginTm"、"endTm"
+    BeanUtils.copyProperties(modelSearchDto, searchDto, ignoreProperties);
+    */
     public static void copyPropertiesNoNull(Object source, Object target, String... ignoreProperties) throws BeansException {
         Assert.notNull(source, "Source must not be null");
         Assert.notNull(target, "Target must not be null");
