@@ -45,4 +45,11 @@ public class StoreActivityController extends BaseController {
 
         return "redirect:list.cgi";
     }
+
+    public static void main(String[] args) {
+        char[] charArray = {'a', 'b', 'c'};
+        char[] charArray2 = charArray;
+        charArray2[1] = 'x';
+        System.out.println(charArray);
+    }
 }
