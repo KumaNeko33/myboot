@@ -1,5 +1,6 @@
 package com.shuai.test.controller;
 
+import com.shuai.test.dao.Sorter;
 import com.shuai.test.domain.Store;
 import com.shuai.test.dto.StoreDto;
 import com.shuai.test.service.StoreService;
@@ -17,6 +18,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Map;
 
@@ -28,16 +30,16 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/store")
-public class StoreController {
+public class StoreController implements Sorter{
 
     @Autowired
     private StoreService storeService;
 
     @RequestMapping(value = "/month", method = RequestMethod.GET)
     public Result<Map> getPointAndRebate() {
-//        Store store = storeService.getStore();
+        Store store = storeService.getStore();
         StoreDto storeDto = StoreDto.builder()
-//                .storeId(16L)
+                .storeId(16L)
                 .build();
         //普通的获取年月日 时分秒
         Calendar calendar = Calendar.getInstance();
@@ -172,6 +174,41 @@ public class StoreController {
 //        }
 //        getchar();
 //    }
+    /**
+     * 冒泡排序高级版
+     */
+    @Override
+    public <T> void sort(T[] array) {
+        boolean flag = true;
+        for (int i = 1,len = array.length; i < len && flag; i++) {
+            flag = false;
+            for (int j = 0; j < len - i; j++) {
+                if (array[j].compareTo(array[j + 1]) > 0) {
+                    T temp = array[j];
+                    array[j] = array[j + 1];
+                    array[j+1] = temp;
+                    flag = true;
+                }
+            }
+        }
+    }
+    @Override
+    public <T> void sort(T[] list, Comparator comparator) {
+            boolean swapped = true;
+            for (int i = 1, len = list.length; i < len && swapped; ++i) {
+                swapped = false;
+                for (int j = 0; j < len - i; ++j) {
+                    if (comparator.compare(list[j], list[j + 1]) > 0) {
+                        T temp = list[j];
+                        list[j] = list[j + 1];
+                        list[j + 1] = temp;
+                        swapped = true;
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * 选择排序增序,选择过程中只交换数组的下标，每一次交换完成后才进行数组元素的位置交换(从小到大)，时间复杂度O(n^2)
      *
