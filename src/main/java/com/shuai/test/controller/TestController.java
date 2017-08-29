@@ -54,6 +54,36 @@ public class TestController {
             }
         });
 
+        //字符串对象的比较
+        String s1 = "Hello";
+        String s2 = "Hello";
+        String s3 = "Hel" + "lo";
+        String s4 = "Hel" + new String("lo");
+        String s5 = new String("Hello");
+        String s6 = s5.intern();
+        String s7 = "H";
+        String s8 = "ello";
+        String s9 = s7 + s8;
+
+        System.out.println(s1 == s2);  // true
+        System.out.println(s1 == s3);  // true  s1 == s3这个地方有个坑，s3虽然是动态拼接出来的字符串，但是所有参与拼接的部分都是已知的字面量，
+        // 在编译期间，这种拼接会被优化，编译器直接帮你拼好，因此String s3 = "Hel" + "lo";在class文件中被优化成String s3 = "Hello";，所以s1 == s3成立。
+
+        System.out.println(s1 == s4);  // false
+
+        System.out.println(s1 == s9);  // false   易错：
+        // s7、s8作为两个变量，都是不可预料的，编译器毕竟是编译器，不可能当解释器用，所以不做优化，
+        // 等到运行时，s7、s8拼接成的新字符串，在堆中地址不确定，不可能与方法区常量池中的s1地址相同。
+
+        System.out.println(s4 == s5);  // false
+        System.out.println(s1 == s6);  // true s1 == s6这两个相等完全归功于intern方法，s5在堆中，内容为Hello ，
+        // intern方法会尝试将Hello字符串添加到常量池中，并返回其在常量池中的地址，因为常量池中已经有了Hello字符串，所以intern方法直接返回地址；
+        // 而s1在编译期就已经指向常量池了，因此s1和s6指向同一地址，相等。
+
+//        必须要关注编译期的行为，才能更好的理解常量池。
+//        运行时常量池中的常量，基本来源于各个class文件中的常量池。
+//        程序运行时，除非手动向常量池中添加常量(比如调用intern方法)，否则jvm不会自动添加常量到常量池。
+
 //        90、简述一下你了解的设计模式。
 //        答：所谓设计模式，就是一套被反复使用的代码设计经验的总结（情境中一个问题经过证实的一个解决方案）。使用设计模式是为了可重用代码、让代码更容易被他人理解、保证代码可靠性。设计模式使人们可以更加简单方便的复用成功的设计和体系结构。将已证实的技术表述成设计模式也会使新系统开发者更加容易理解其设计思路。
 //        在GoF的《Design Patterns: Elements of Reusable Object-Oriented Software》中给出了三类（创建型[对类的实例化过程的抽象化]、结构型[描述如何将类或对象结合在一起形成更大的结构]、行为型[对在不同的对象之间划分责任和算法的抽象化]）共23种设计模式，包括：Abstract Factory（抽象工厂模式），Builder（建造者模式），Factory Method（工厂方法模式），Prototype（原始模型模式），
@@ -76,14 +106,14 @@ public class TestController {
 //                return instance;
 //            }
 //        }
-         public class Singleton {
-            private Singleton(){
-            }//构造函数私有化，无法主动 实例化对象
-            private static Singleton instance = new Singleton();
-            public static Singleton getInstance(){
-                return instance;
-            }
-        }
+//         public class Singleton {
+//            private Singleton(){
+//            }//构造函数私有化，无法主动 实例化对象
+//            private static Singleton instance = new Singleton();
+//            public static Singleton getInstance(){
+//                return instance;
+//            }
+//        }
 //        懒汉式单例
 //        public class Singleton {
 //            private static Singleton instance = null;
@@ -93,18 +123,20 @@ public class TestController {
 //                return instance;
 //            }
 //        }
-        public class Singleton{
-             private Singleton(){}
-             private static Singleton instance = null;
-             public static Singleton getInstance(){
-                 synchronized (this){
-                     if (instance == null) {
-                         instance = new Singleton();
-                     }
-                     return instance;
-                 }
-             }
-        }
+//        public class Singleton{
+//             private Singleton(){}
+//             private static Singleton instance = null;
+//             public static Singleton getInstance(){
+//                 synchronized (this){
+//                     if (instance == null) {
+//                         instance = new Singleton();
+//                     }
+//                     return instance;
+//                 }
+//             }
+//        }
+        //内部类实现单例
+
 //        注意：实现一个单例有两点注意事项，①将构造器私有，不允许外界通过构造器创建对象；②通过公开的静态方法向外界返回类的唯一实例。这里有一个问题可以思考：Spring的IoC容器可以为普通的类创建单例，它是怎么做到的呢？
 //        92、什么是UML？
 //        答：UML是统一建模语言（Unified Modeling Language）的缩写，它发表于1997年，综合了当时已经存在的面向对象的建模语言、方法和过程，是一个支持模型化和软件系统开发的图形化语言，为软件开发的所有阶段提供模型化和可视化支持。使用UML可以帮助沟通与交流，辅助应用设计和文档的生成，还能够阐释系统的结构和行为。

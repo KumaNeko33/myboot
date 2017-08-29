@@ -84,6 +84,10 @@ public class StoreController {
 
     public static void main(String[] args) {
         Clock clock = Clock.systemDefaultZone();
+        //冒泡排序
+        int[] arr0 = {2, 1, 7, 33, 22, 11, 88, 55, 66, 23, 12};
+        bubbleSort(arr0, arr0.length - 1, arr0.length - 1);
+        display(arr0);
         //选择排序
         long millis = clock.millis();
         int[] arr = {2, 1, 7, 33, 22, 11, 88, 55, 66, 23, 12};
@@ -121,6 +125,53 @@ public class StoreController {
         System.out.println();
     }
 
+    /**
+     * 递归实现冒泡排序，从小到大
+     * @param array
+     * @param m
+     * @param n
+     */
+    private static void bubbleSort(int[] array, int m, int n) {
+        int temp;
+        if (m == 0 || n == 0) {
+            return;
+        }
+        if (m > 0) {
+            if (array[n - 1] > array[n]) {
+                temp = array[n - 1];
+                array[n - 1] = array[n];
+                array[n] = temp;
+            }
+            bubbleSort(array, n - 1, m);//这个递归一圈后，数组第一个元素变成最小
+//            bubbleSort(array, m, n - 1);//这个递归一圈后，数组第一个元素变成最小
+        }
+        bubbleSort(array, n, m - 1);
+    }
+
+    //产生10个100到200 之间的随机数进行测试
+//    void main()
+//    {
+//
+//        time_t tms;
+//        int num[10];
+//        int i;
+//
+//        srand((unsigned int)time(&tms));
+//
+//        for(i=0;i<10;i++)
+//        {
+//            *(num+i) = 100 + rand()%100;
+//            printf("%d\n",*(num+i));
+//        }
+//        sort(num,9,9); //调用递归排序
+//
+//        printf("After sorted\n");
+//        for(i=0;i<10;i++)
+//        {
+//            printf("%d\n",*(num+i));
+//        }
+//        getchar();
+//    }
     /**
      * 选择排序增序,选择过程中只交换数组的下标，每一次交换完成后才进行数组元素的位置交换(从小到大)，时间复杂度O(n^2)
      *
