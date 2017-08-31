@@ -5,3 +5,17 @@ spring:
     username: root
     password: 123456
     driver-class-name: com.mysql.jdbc.Driver
+#  dubbo:
+#      application:
+#        name: store-show-provider
+#        owner: store-show
+#        scan-package: com.zcckj.storeshow.service
+#      registry:
+#        address: zookeeper://172.18.30.28:2181
+#      group: qprod
+#    跟踪sql用的，便于调试
+  jpa:
+    show-sql: true
+  redis:
+    database: 3
+    host: 10.1.221.8

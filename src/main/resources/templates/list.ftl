@@ -1077,3 +1077,78 @@ js中
                                         }
                                     });
                                 });
+
+
+
+**对于table的tr、th、td布局，可使用属性colspan和align来破坏表格的上下对齐
+
+**原子性：原子是世界上的最小单位，具有不可分割性。比如 a=0；（a非long和double类型） 这个操作是不可分割的，那么我们说这个操作时原子操作。
+    再比如：a++； 这个操作实际是a = a + 1；是可分割的，所以他不是一个原子操作。非原子操作都会存在线程安全问题，
+        需要我们使用同步技术（sychronized）来让它变成一个原子操作。一个操作是原子操作，那么我们称它具有原子性。
+            Java的concurrent包下提供了一些原子类，我们可以通过阅读API来了解这些原子类的用法。比如：AtomicInteger、AtomicLong、AtomicReference等。
+**可见性，是指线程之间的可见性，一个线程修改的状态对另一个线程是可见的。也就是一个线程修改的结果。另一个线程马上就能看到。
+    比如：用volatile修饰的变量，就会具有可见性。volatile修饰的变量不允许线程内部缓存和重排序，即直接修改内存。所以对其他线程是可见的。
+        但是这里需要注意一个问题，volatile只能让被他修饰内容具有可见性，但不能保证它具有原子性。比如 volatile int a = 0；之后有一个操作 a++；
+            这个变量a具有可见性，但是a++ 依然是一个非原子操作，也就这这个操作同样存在线程安全问题。
+**volatile 会拒绝编译器对其修饰的变量进行优化。也就不会存在重排序的问题。volatile只会影响可见性，不会影响原子性。
+例子：正确使用volatile的模式：#状态标志：
+                                package com.chu.test.thread;
+                                /**
+                                * 可见性分析
+                                * @author Administrator
+                                *
+                                *volatile 会拒绝编译器对其修饰的变量进行优化。也就不会存在重排序的问题。volatile只会影响可见性，不会影响原子性。
+                                *下面程序如果不加
+                                */
+                                public class Test {
+
+                                    volatile int a = 1;
+                                    volatile boolean ready;
+
+                                    public class PrintA extends Thread{
+                                    @Override
+                                        public void run() {
+                                            while(!ready){//循环直到main线程中将ready修改为true
+                                                Thread.yield();//使当前线程休眠，只能让同优先级的线程有执行的机会。且无法指定休眠时间，不释放对象锁，也就是说如果有synchronized同步块，其他线程仍然不能访问共享数据。注意该方法要捕捉异常。
+                                            }
+                                            System.out.println(a);
+                                        }
+                                    }
+                                    public static void main(String[] args) throws InterruptedException {
+                                        Test t = new Test();
+                                        t.new PrintA().start();
+                                        //下面两行如果不加volatile的话，执行的先后顺序是不可预测的。并且下面两行都是原子操作，但是这两行作为一个整体的话就不是一个原子操作。
+                                        t.a = 48; //这是一个原子操作，但是其结果不一定具有可见性，（即main线程对a的修改对于线程PrintA不一定可见，PrintA看到的共享变量可能仍是修改前的值1）。
+                                        //加上volatile后就具备了可见性。
+                                        t.ready = true;//同理,
+                                    }
+                                }
+                                上面程序如果变量a不用volatile修饰那么输出结果很可能就是1.
+                                模式 #1：状态标志
+
+                                也许实现 volatile 变量的规范使用仅仅是使用一个布尔状态标志，用于指示发生了一个重要的一次性事件，例如完成初始化或请求停机。
+
+                                很多应用程序包含了一种控制结构，形式为 “在还没有准备好停止程序时再执行一些工作”，如清单 2 所示：
+
+                                清单 2. 将 volatile 变量作为状态标志使用
+
+                                volatile boolean shutdownRequested;
+
+                                ...
+
+                                public void shutdown() { shutdownRequested = true; }
+
+                                public void doWork() {
+                                    while (!shutdownRequested) {
+                                    // do stuff
+                                    }
+                                }
+                                很可能会从循环外部调用 shutdown() 方法 —— 即在另一个线程中 —— 因此，需要执行某种同步来确保正确实现 shutdownRequested 变量的可见性。
+                                （可能会从 JMX 侦听程序、GUI 事件线程中的操作侦听程序、通过 RMI 、通过一个 Web 服务等调用）。
+                                然而，使用 synchronized 块编写循环要比使用清单 2 所示的 volatile 状态标志编写麻烦很多。由于 volatile 简化了编码，并且状态标志并不依赖于程序内任何其他状态，因此此处非常适合使用 volatile。
+
+                                这种类型的状态标记的一个公共特性是：通常只有一种状态转换；shutdownRequested 标志从 false 转换为 true，然后程序停止。
+                                这种模式可以扩展到来回转换的状态标志，但是只有在转换周期不被察觉的情况下才能扩展（从 false 到 true，再转换到 false）。此外，还需要某些原子状态转换机制，例如原子变量。
+**结束语:
+    与锁相比，Volatile 变量是一种非常简单但同时又非常脆弱的同步机制，它在某些情况下将提供优于锁的性能和伸缩性。如果严格遵循 volatile 的使用条件 —— 即变量真正独立于其他变量和自己以前的值 —— 在某些情况下可以使用 volatile 代替 synchronized 来简化代码。
+        然而，使用 volatile 的代码往往比使用锁的代码更加容易出错。本文介绍的模式涵盖了可以使用 volatile 代替 synchronized 的最常见的一些用例。遵循这些模式（注意使用时不要超过各自的限制）可以帮助您安全地实现大多数用例，使用 volatile 变量获得更佳性能。

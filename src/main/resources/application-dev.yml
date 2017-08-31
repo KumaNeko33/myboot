@@ -18,5 +18,5 @@ spring:
   jpa:
     show-sql: true
   redis:
-    database: 3
+    database: 4
     host: 10.1.221.8

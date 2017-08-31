@@ -10,6 +10,21 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
+		<!--redis-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+			<version>1.5.1.RELEASE</version>
+		</dependency>
+		<!--dubbo-->
+		<!--<dependency>-->
+			<!--<groupId>com.shuai.starter</groupId>-->
+			<!--<artifactId>zcckj-spring-boot-starter-dubbo</artifactId>-->
+		<!--</dependency>-->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>dubbo</artifactId>
+		</dependency>
 		<!--<dependency>-->
 		<!--<groupId>org.springframework.boot</groupId>-->
 		<!--<artifactId>spring-boot-starter-security</artifactId>-->
