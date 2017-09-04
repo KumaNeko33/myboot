@@ -1,4 +1,4 @@
-package com.shuai.test.utils;
+package com.shuai.test.learn;
 
 import java.io.BufferedReader;
 import java.io.IOException;

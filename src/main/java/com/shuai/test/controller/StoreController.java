@@ -37,7 +37,7 @@ public class StoreController implements Sorter{
 
     @RequestMapping(value = "/month", method = RequestMethod.GET)
     public Result<Map> getPointAndRebate() {
-        Store store = storeService.getStore();
+//        Store store = storeService.getStore();
         StoreDto storeDto = StoreDto.builder()
                 .storeId(16L)
                 .build();
@@ -183,27 +183,26 @@ public class StoreController implements Sorter{
         for (int i = 1,len = array.length; i < len && flag; i++) {
             flag = false;
             for (int j = 0; j < len - i; j++) {
-                if (array[j].compareTo(array[j + 1]) > 0) {
+//                if (array[j].compareTo(array[j + 1]) > 0) {
                     T temp = array[j];
                     array[j] = array[j + 1];
                     array[j+1] = temp;
                     flag = true;
-                }
+//                }
             }
         }
     }
     @Override
     public <T> void sort(T[] list, Comparator comparator) {
-            boolean swapped = true;
-            for (int i = 1, len = list.length; i < len && swapped; ++i) {
-                swapped = false;
-                for (int j = 0; j < len - i; ++j) {
-                    if (comparator.compare(list[j], list[j + 1]) > 0) {
-                        T temp = list[j];
-                        list[j] = list[j + 1];
-                        list[j + 1] = temp;
-                        swapped = true;
-                    }
+        boolean swapped = true;
+        for (int i = 1, len = list.length; i < len && swapped; ++i) {
+            swapped = false;
+            for (int j = 0; j < len - i; ++j) {
+                if (comparator.compare(list[j], list[j + 1]) > 0) {
+                    T temp = list[j];
+                    list[j] = list[j + 1];
+                    list[j + 1] = temp;
+                    swapped = true;
                 }
             }
         }
@@ -466,9 +465,9 @@ public class StoreController implements Sorter{
 //      如果哈希桶数组很大，即使较差的Hash算法也会比较分散，但是空间成本增加；如果哈希桶数组数组很小，即使好的Hash算法也会出现较多碰撞，碰撞越多所产生的链表长度就会越来越长，这样势必会影响HashMap的速度
 //    所以就需要在空间成本和时间成本之间权衡，其实就是在根据实际情况确定哈希桶数组的大小，并在此基础上设计好的hash算法减少Hash碰撞。
 //    那么通过什么方式来控制map使得Hash碰撞的概率又小，哈希桶数组（Node[] table）占用空间又少呢？答案就是好的Hash算法和扩容机制。
-//    即使负载因子和Hash算法设计的再合理，也免不了会出现拉链过长的情况，一旦出现拉链过长，则会严重影响HashMap的性能。
+//    即使负载因子和Hash算法设计的再合理，也免不了会出现拉链过长的情况，一旦出现拉链过长，则会严重影响HashMap的性能,因为链表的查询速度比较慢，链表长,就需要循环链表。
 //    于是，在JDK1.8版本中，对数据结构做了进一步的优化，引入了红黑树。而当链表长度太长（默认超过8）时，链表就转换为红黑树，
-//    利用红黑树快速增删改查的特点提高HashMap的性能，其中会用到红黑树的插入、删除、查找等算法。
+//    利用红黑树快速增删改查的特点O(logN)提高HashMap的性能，其中会用到红黑树的插入、删除、查找等算法。
 
 //    针对上面的扩展：随着HashMap中元素的数量越来越多，发生碰撞的概率就越来越大，所产生的链表长度就会越来越长，这样势必会影响HashMap的速度
 //            (为啥呢，原来是直接找到数组的index就可以直接根据key取到值了，但是冲突严重，也就是说链表长，那就得循环链表了，时间就浪费在循环链表上了，也就慢了)，

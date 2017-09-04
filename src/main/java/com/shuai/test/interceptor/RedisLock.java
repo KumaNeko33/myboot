@@ -41,7 +41,8 @@ public class RedisLock {
      */
     private int timeoutMsecs = 10 * 1000;
 
-    private volatile boolean locked = false;//用volatile修饰，使locked布尔状态变成 可见性的，当前线程对locked的修改对于其他线程是可见的，实现互斥
+    private volatile boolean locked = false;//用volatile修饰，使locked布尔状态变成 可见性的，当前线程对locked的修改对于其他线程是可见的，实现互斥，
+    //互斥即一次只允许一个线程持有某个特定的锁，因此可使用该特性实现对共享数据的协调访问协议，这样，一次就只有一个线程能够使用该共享数据。
 
     /**
      * Detailed constructor with default acquire timeout 10000 msecs and lock expiration of 60000 msecs.
@@ -229,7 +230,7 @@ public class RedisLock {
         }
     }
 
-//调用：
+//业务层调用：
     public void test(String key) {
         //在进行获取锁lock()之前可以 先进行应用层首次过滤，通过 队列来限制过滤请求数，比如商品数为100，因为考虑到处理的失败，我们就给队列开的总数为500。
         //秒杀开始后，我们的队列只接受前面500个请求，当数量满500后，后面的请求都 返回秒杀结束。如果一瞬间的并发数大于500，我们就随机取500个到队列
@@ -238,7 +239,7 @@ public class RedisLock {
 此方案成立的前提是并发量很大，能接近或者超过放出的数量。如果商品库存很足，而且并发量不大，反倒影响了用户体验。*/
         RedisLock lock = new RedisLock(redisTemplate, key, 10000, 20000);
         try {
-            if(lock.lock()) {
+            if(lock.lock()) {//为true则说明获得锁
                 //需要加锁的代码
             }
         } catch (InterruptedException e) {
