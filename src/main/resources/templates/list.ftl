@@ -1152,3 +1152,90 @@ js中
 **结束语:
     与锁相比，Volatile 变量是一种非常简单但同时又非常脆弱的同步机制，它在某些情况下将提供优于锁的性能和伸缩性。如果严格遵循 volatile 的使用条件 —— 即变量真正独立于其他变量和自己以前的值 —— 在某些情况下可以使用 volatile 代替 synchronized 来简化代码。
         然而，使用 volatile 的代码往往比使用锁的代码更加容易出错。本文介绍的模式涵盖了可以使用 volatile 代替 synchronized 的最常见的一些用例。遵循这些模式（注意使用时不要超过各自的限制）可以帮助您安全地实现大多数用例，使用 volatile 变量获得更佳性能。
+
+**前端页面中可以传入Boolean值进行判断，但无法使用data-status保存下false，可以转成字符串保存：如data-status="${showInfo.status?string}" 这样false就是"false"字符串了
+        运用实例：
+                                1.body中的标签按钮：
+                                <td>
+                                    <span>
+                                        <a href="#" class="editModel" data-id="${showModel.id}" data-content="${showModel.content}">[${message("admin.sellerShowModel.edit")}]</a>
+                                    [#if showModel.availableFlag]
+                                        <a href="#" class="status" data-id="${showModel.id}" data-status="${showModel.availableFlag?string}">[${message("admin.sellerShowModel.status.false")}]</a>
+                                    [#else]
+                                        <a href="#" class="status" data-id="${showModel.id}" data-status="${showModel.availableFlag?string}">[${message("admin.sellerShowModel.status.true")}]</a>
+                                    [/#if]
+                                    </span>
+                                </td>
+                                2.js方法：
+                                $(".status").click(function () {
+                                    var id = $(this).attr("data-id");
+                                    var status = $(this).attr("data-status");
+                                    var afterStatus = false;
+                                    $("#changeFlagModelId").val(id);
+                                    //                var content = $(this).attr("data-content");
+                                    var countModel = $("#countModel").val();
+                                    var message = "确定下架该卖家秀内容模板？";
+                                    if(status == "true") {
+                                    if(countModel == 4) {
+                                    message = "请最少保留4个内容模板！";
+                                    layer.msg(message,{icon:2});
+                                    return false;
+                                    }
+                                    }
+                                    if(status == "false") {
+                                    var list = $("#showContentList");
+                                    var afterStatus = true;
+                                    message = "确定上架该卖家秀内容模板？";
+                                    //                    alert(list);
+                                    if(countModel == 4 && list !== null && list !== undefined) {
+                                    message = "最多上架4个，需选择下面某个模版下架才可上架此模版";
+                                    layer.open({
+                                    title: [message, 'font-size:15px;padding:0 0 0 15px'],
+                                [@compress single_line = true]
+                                    content:'<table>
+                                    [#if showContentList??]
+                                        [#list showContentList as showContent]
+                                            [#if showContent_index = 0]
+                                            <tr>
+                                            <td class=\"myButton\"><button data-id=\"${showContentList[showContent_index].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[showContent_index].content?html, 14, "...")}<\/button>
+                                                <\/td>
+                                            [/#if]
+                                            [#if showContent_index = 1]
+                                            <td class=\"myButton\"><button data-id=\"${showContentList[showContent_index].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[showContent_index].content?html, 14, "...")}<\/button>
+                                                <\/td>
+                                                <\/tr>
+                                            [/#if]
+                                            [#if showContent_index = 2]
+                                            <tr>
+                                            <td class=\"myButton\"><button data-id=\"${showContentList[showContent_index].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[showContent_index].content?html, 14, "...")}<\/button>
+                                                <\/td>
+                                            [/#if]
+                                            [#if showContent_index = 3]
+                                            <td class=\"myButton\"><button data-id=\"${showContentList[showContent_index].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[showContent_index].content?html, 14, "...")}<\/button>
+                                                <\/td>
+                                                <\/tr>
+                                            [/#if]
+                                        [/#list]
+                                    [/#if]
+                                    <\/table>',
+                                [/@compress]
+                                    area: ['400px','225px'],
+                                    closeBtn: 0,
+                                    })
+                                    return false;
+                                    }
+                                    }
+                                    layer.confirm(message, {icon: 3, title:'提示'},function (index) {
+                                    $("#flag").val(afterStatus);
+                                    $("#id").val(id);
+                                    //                    $("#updateModelContent").val(content);
+                                    $("#updateShowModelFlag").submit();
+                                    layer.close(index);
+                                    })
+                                });
+
+
+**js方法中的return false;是跳出整个方法，相当于java后端的return
+**layer弹窗中，如果弹窗区域设置了宽度和高度即area:['300px','400px'],则因为设置高度而在火狐浏览器里会出现按钮布局出错的问题，
+                                可以不设置高度，只设置宽度，如 area:['300px']
+**js中的标签状态改变调用触发的方法$("#id").change()容易出问题， 用在该标签上加onchange="changePhoto()"方法调用和js中添加function changePhoto(){}来替换

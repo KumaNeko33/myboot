@@ -40,6 +40,19 @@ public class Outer implements Serializable {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+        Outer outer1 = new Outer();
+
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray())){
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(outer1);
+
+            ObjectInputStream ois = new ObjectInputStream(bais);
+            outer1 = (Outer)ois.readObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
         return outer;
     }
 }
