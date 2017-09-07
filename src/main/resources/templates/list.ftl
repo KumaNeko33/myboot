@@ -1239,3 +1239,136 @@ js中
 **layer弹窗中，如果弹窗区域设置了宽度和高度即area:['300px','400px'],则因为设置高度而在火狐浏览器里会出现按钮布局出错的问题，
                                 可以不设置高度，只设置宽度，如 area:['300px']
 **js中的标签状态改变调用触发的方法$("#id").change()容易出问题， 用在该标签上加onchange="changePhoto()"方法调用和js中添加function changePhoto(){}来替换
+
+**如果有人更新了项目所依赖的 dao项目的方法，则需要clean install -U更新本项目的依赖库。
+**还有有时页面会缓存了 jQuery的validate.js检验参数的结果，需要刷新页面
+
+${tyreBrand.tyreInsFlag?string("是", "否")}转换boolean为对应字符串
+
+**索引的存储：
+    b-tree结构指的是数据的逻辑存储方式。物理存储显然不会是指定顺序（B-Tree）的存储，不然试想如果要update或者insert那需要多大的代价才能维护物理顺序啊。
+
+    index（无论clustered或是non clustered）每一个leaf（叶节点）都有指向它的前项和后项，这样就维护了index的逻辑顺序。b-tree指的就是这个leaf链表形式的基础上，再建立它的上层（中间层和root，用于为它的leaf提供索引），好处是每一次lookup的消耗都是相同的（等于这个tree的depth）。
+
+    index存了什么，如果是clustered index它存了这个表里所有的数据和key（用于lookup），如果是non clustered index它存了这个表的clustered index key（如果表没有clustered index，那就是RID，RID包括了fileid，pageid，slotid？，可以用于直接定位到需要的数据），如果这个nonclustered index有included column，这个数据也会被储存在index里。
+
+    如果要进一步研究物理结构，那就更复杂了，推荐去读一下inside sql server - storage engine。看完以后（当然还要配合msdn的一些文章），lz就全清楚啦。
+
+    内存（你指的是buffer pool吧）的作用无非是把物理磁盘的数据读进内存，避免反复I/O读写。你所谓的b树结构是逻辑结构，不是物理上的。
+    举个例子，比如index的page结构大致是这样的，
+    File/Page ID: xxx
+    IAMF/PID: xxx
+    Index ID: xxx
+    Index Level： 0（代表是leaf）
+    PrevFile/Page ID： xxx
+    NextFile/Page ID： xxx
+    ..还有其他一些信息保存它里面每一个index row
+    有了index level，它的前后file和page ID组成了树结构。index无论在磁盘还是内存里都是以这一个一个的页保存的。
+
+            内存里面存储的和索引在磁盘上存储过程结构相同，只是存储到内存里避免频繁磁盘IO节省时间。
+            索引在磁盘上存储时也是按页存储的，如果单纯从物理结构上来说就是连续的存储页而已，而他们的逻辑结构是通过指针实现的b树，
+            并不是在磁盘上或者内存上就是b树的结构了。b树只是逻辑上的，不是物理上的。
+            其实mayuanf已经说得很明白了，只是索引空间与表空间的数据物理存储顺序有点不一样，还是有区别的。LZ不要太纠结了。
+
+                                更新非常频繁的字段不适合创建索引
+                                1、表的主键、外键必须有索引；
+                                2、数据量超过300的表应该有索引；
+                                3、经常与其他表进行连接的表，在连接字段上应该建立索引，如join中on后的连接字段；
+                                4、经常出现在Where子句中的字段，特别是大表的字段，应该建立索引；
+                                5、索引应该建在选择性高的字段上；
+                                6、索引应该建在小字段上，对于大的文本字段甚至超长字段（text和Blog)，不要建索引；
+                                7、复合索引的建立需要进行仔细分析；尽量考虑用单字段索引代替：
+                                A、正确选择复合索引中的主列字段，一般是选择性较好的字段；
+                                B、复合索引的几个字段是否经常同时以AND方式出现在Where子句中？单字段查询是否极少甚至没有？如果是，则可以建立复合索引；否则考虑单字段索引；
+                                C、如果复合索引中包含的字段经常单独出现在Where子句中，则分解为多个单字段索引；
+                                D、如果复合索引所包含的字段超过3个，那么仔细考虑其必要性，考虑减少复合的字段；
+                                E、如果既有单字段索引，又有这几个字段上的复合索引，一般可以删除复合索引；
+                                8、频繁进行数据操作(insert和update)的表，不要建立太多的索引；
+                                9、删除无用的索引，避免对执行计划造成负面影响；
+                                10、更新非常频繁的字段不适合创建索引
+                                11、较频繁的作为查询条件的字段应该创建索引
+                                12、唯一性太差的字段不适合单独创建索引，即使频繁作为查询条件：
+                                唯一性太差的字段：如状态字段，类型字段等。这些字段即使创建了单独的索引，MySQL Query Optimizer大多数也不会选择使用，如果什么时候选择了这种索引，可能会带来极大的性能问题。
+                                由于索引字段中每个值都含有大量的记录，那么存储引擎在根据索引访问数据的时候会带来大量的随机IO，甚至有时候可能还好出现大量的重复IO
+
+            以上是一些普遍的建立索引时的判断依据。一言以蔽之，索引的建立必须慎重，对每个索引的必要性都应该经过仔细分析，要有建立的依据。
+        因为太多的索引与不充分、不正确的索引对性能都毫无益处：在表上建立的每个索引都会增加存储开销，索引对于插入、删除、更新操作也会增加处理上的开销。
+    另外，过多的复合索引，在有单字段索引的情况下，一般都是没有存在价值的；相反，还会降低数据增加删除时的性能，特别是对频繁更新的表来说，负面影响更大。
+
+
+                不管数据表有无索引，首先在SGA的数据缓冲区中查找所需要的数据，如果数据缓冲区中没有需要的数据时，server服务器进程才去读磁盘。
+                读磁盘时：
+                    1、无索引，直接去读表数据存放的磁盘块，读到数据缓冲区中再查找需要的数据。
+                    2、有索引，先读入索引表（即将索引文件加载到内存，索引文件在存储器上分为两个区：索引区和数据区。索引区存放索引表，数据区存放主文件），
+                                通过索引表直接找到所需数据的物理地址（先找到对应的叶子节点，所有的叶子节点包括关键字信息以及指向这些关键字的指针，而且叶子节点是根据关键字大小、顺序链接的）
+                                ，并把数据读入数据缓冲区中。
+
+
+                                EXPLAIN SELECT * FROM `t_store` where phone = '13805746240';  --type=const说明使用了唯一索引或者主键，返回记录一定是1行记录的等值where条件时;Extra=NULL
+                                EXPLAIN SELECT phone FROM `t_store` where phone = '13805746240';  --type=const说明使用了唯一索引或者主键，返回记录一定是1行记录的等值where条件时;Extra=Using index
+                                说明 查询的字段在查询条件的字段中，且查询字段是 单键索引/或者多列索引的非最左字段，则执行计划是Extra=Using index;
+
+                                EXPLAIN SELECT `PASSWORD` FROM t_store WHERE salt = '13968140594'; --执行计划是Extra=Using where;Using INDEX
+                                因为密码数据在所加载的索引文件（所使用的索引是idx_salt_password_phone）中无法直接获得,还需要根据索引中的地址指针找到磁盘中的密码数据
+                                EXPLAIN SELECT `PASSWORD` FROM t_store WHERE PASSWORD = '6a66880ed845c57c903def3e6a30a681'; --执行计划是Extra=Using index，
+                                因为查询的字段在查询条件的字段中，且查询字段是 单键索引/或者多列索引的最左字段，所以密码数据在所加载的索引文件（所使用的索引是idx_salt_password_phone）中可以直接获得,
+                                不需要再根据索引中的地址指针找到磁盘中的密码数据。
+                                EXPLAIN SELECT `phone` FROM t_store WHERE phone = '13805746240'; --执行计划是Extra=Using where; Using index，
+                                因为查询的字段在查询条件的字段中，且查询字段不是 单键索引/或者多列索引的最左字段，所以密码数据在所加载的索引文件（所使用的索引是idx_salt_password_phone）中不可以直接获得,
+                                还需要再根据索引中的地址指针找到磁盘中的密码数据。
+                                EXPLAIN SELECT `salt` FROM t_store WHERE salt = '13968140594'; --执行计划是Extra=Using where;Using INDEX,查询的字段salt和查询条件的字段salt相同，但查询字段salt不是 单键索引/或者多列索引的非最左字段,
+                                salt数据在所加载的索引文件（所使用的索引是idx_salt_password_phone）中无法直接获得,还需要根据索引中的地址指针找到磁盘中的salt数据。
+                                EXPLAIN SELECT `salt` FROM t_store WHERE PASSWORD = '6a66880ed845c57c903def3e6a30a681' and salt = '13968140594'; --执行计划是Extra=Using where;Using INDEX
+                                因为查询的字段在查询条件的字段中，且查询字段的排序与多列索引的字段相同,最左匹配
+                                salt数据在所加载的索引文件（所使用的索引是idx_salt_password_phone）中可以直接获得,不需要根据索引中的地址指针找到磁盘中的salt数据。
+                                EXPLAIN SELECT * FROM t_store WHERE PASSWORD = '6a66880ed845c57c903def3e6a30a681' and salt = '13968140594'; --执行计划是Extra=NULL,因为查询字段是*
+                                EXPLAIN SELECT `salt` FROM t_store WHERE is_enabled = 1 and PASSWORD = '6a66880ed845c57c903def3e6a30a681' and salt = '13968140594' ; --执行计划是Extra=Using where;Using INDEX
+                                因为查询的字段在查询条件的字段中，且查询字段的排序与多列索引的字段相同,最左匹配
+                                salt数据在所加载的索引文件（所使用的索引是idx_salt_password_phone）中可以直接获得,不需要根据索引中的地址指针找到磁盘中的salt数据。
+
+                                EXPLAIN SELECT * FROM t_store where user_name = '13806517253';  --type=const说明使用了唯一索引或者主键，返回记录一定是1行记录的等值where条件时
+
+                                EXPLAIN select id from t_store where id = 194;
+
+                                EXPLAIN SELECT * FROM t_store where user_name like '%138%';  --使用的是全表扫描，type=ALL，ref=NULL rows=全表行数 且没有使用索引key=NULL
+                                使用全局索引(注意：全文索引的字段内容不能用逗号分隔,不可以有汉字)后，建立fuk_username， 字段user_name,索引类型FULL TEXT,索引方法null后：
+                                EXPLAIN SELECT * FROM t_store where MATCH (`user_name`) AGAINST ('138');    --type=fulltext ref=const rows=1 Extra=Using where;Ft_hints:sorted
+
+                                EXPLAIN SELECT * FROM t_store where sourceid is null;  --当索引为sourceid的单键索引时使用索引Using index condition
+                                EXPLAIN SELECT * FROM t_store where sourceid is null;  --当索引为sourceid的和虚拟列创建多列索引时未使用索引未使用索引
+                                EXPLAIN SELECT * FROM t_store where sourceid is null UNION SELECT * FROM t_store where id BETWEEN 300 AND 400; --
+                                --UNION 操作符用于合并两个或多个 SELECT 语句的结果集。
+                                请注意，UNION 内部的 SELECT 语句必须拥有相同数量的列。列也必须拥有相似的数据类型。同时，每条 SELECT 语句中的列的顺序必须相同。
+
+                                ALTER TABLE t_store ADD KEY idx_sourceid_virtua (sourceid,0);
+                                ALTER TABLE t_store ADD COLUMN virtua TINYINT AS virtual, ADD KEY idx_sourceid_virtua (sourceid,virtual);
+
+                                ALTER TABLE t_store ADD COLUMN log_date  DATE AS (DATE(locked_date)) stored, ADD KEY idx_log_date (log_date);
+                                ALTER TABLE t_store drop COLUMN log_date, drop KEY idx_log_date;  --删除虚拟列和虚拟列索引
+
+                                ALTER TABLE t_store ADD COLUMN log_date  DATE AS (DATE(locked_date)) virtual, ADD KEY idx_log_date (log_date);--注：创建virtual比stored快了3、4倍
+
+                                高效： select * FROM EMP where DEPTNO >=4
+
+                                　　低效： select * FROM EMP where DEPTNO >3
+
+                                -- 从4开始查当然要比从3开始查要快，因为大于等于3小于4的数据不需要进行对比了。如果是DEPTNO是没有索引的，并且DEPTNO都是整数，则没有区别。
+                                -- 如果是DEPTNO是有索引的，并且DEPTNO都是整数，则>=4是从索引4开始查找，而>3是从索引3开始查找，如果数据量的分布情况是如下的情况，则查询的效果很明显
+
+                                低效： select * FROM DEPT where SAL * 12 > 25000;
+
+                                　　高效： select * FROM DEPT where SAL > 25000/12;
+
+                                -- 如果SAL是索引列，那么第一句就明显低效了，因为SAL*12 > 25000是不走索引的，如果对索引列进行了计算（包括函数），然包含该索引列的判断部分就不能再走索引了。
+
+                                低效：select * FROM EMP E where SAL > 50000 AND JOB = ‘MANAGER’ AND 25 < (select count(*) FROM EMP where MGR=E.EMPNO);
+
+                                　　高效：select * FROM EMP E where 25 < (select count(*) FROM EMP where MGR=E.EMPNO) AND SAL > 50000 AND JOB = ‘MANAGER’;
+
+                                -- 这两句SQL实在是看不出来有什么区别，现在的ORACLE很智能了，这两对SQL对于ORACLE来说执行计划应当是没有区别的吧？
+
+                                　低效： select JOB , AVG(SAL) FROM EMP GROUP BY JOB HAVING JOB = ‘PRESIDENT’ OR JOB = ‘MANAGER’
+
+                                　　高效： select JOB , AVG(SAL) FROM EMP where JOB = ‘PRESIDENT’ OR JOB = ‘MANAGER’ GROUP BY JOB
+
+                                -- 先过滤后分组明显要比先分组后过滤要快，因为少了很多的的分组计算和处理的记录。
