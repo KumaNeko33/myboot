@@ -490,3 +490,283 @@ public class StoreController implements Sorter{
 //    飞1/8时；a、b、c剩3/8，c分a、b各1/8，a、b剩4/8,4/8， 飞1/4时，3/8,3/8,b给a1/8，飞回， a4/8  飞到3/4，a飞到1/2时，b、c装满油倒飞回来1/8位置，bc剩3/8,c给b加油2/8后飞回，b剩5/8,这时a剩1/4油，然后a飞到3/4，b倒飞到1/4，a0油，b1/2，分给a1/4，刚好两架飞机飞回
 //            假定让飞机a，飞回终点，邮箱最多能装1/2路程的油，就是说飞机a飞到1/2路程时，后面还需要加1/2油
 //故三架飞机即可
+
+
+
+/*
+7、装饰模式（Decorator）:可以有效的替代继承
+
+顾名思义，装饰模式就是给一个对象增加一些新的功能，而且是动态的，要求装饰对象和被装饰对象实现同一个接口，装饰对象持有被装饰对象的实例，关系图如下：
+
+这里写图片描述
+
+Source类是被装饰类，Decorator类是一个装饰类，可以为Source类动态的添加一些功能，代码如下：
+
+已存在：
+public interface SourceAble {
+    public void method();
+}
+public class Source extends SourceAble{
+    @Override
+    public void method(){
+        System.out.println("the original method!");
+    }
+}
+装饰类:与被装饰类实现同一接口：装饰Source类，扩展该类的方法，替代继承。
+public class Decorator implements SourceAble{
+    private SourceAble source; //被装饰类对象变量
+    public Decorator(SourceAble source){ //通过构造函数传入被装饰类对象
+        super();
+        this.source = source; //令 本地的被装饰类对象 等于 传入的被装饰类对象
+    }
+    @Override
+    public void method(){ //装饰 传入的被装饰类对象的方法
+        before();
+        source.method();
+        after();
+    }
+
+    public void before(){
+        System.out.println("before Decorator!");
+    }
+    public void after(){
+        System.out.println("after Decorator!");
+    }
+}
+````
+测试类：
+public class DecoratorTest {
+    public static void main(String[] args) {
+        Sourceable source = new Source();//创建被装饰类对象
+        Sourceable obj = new Decorator(source);//通过传入被装饰类对象 创建装饰类对象
+        obj.method();//调用装饰类对象的装饰方法
+    }
+}
+输出：
+
+before decorator!
+the original method!
+after decorator!
+
+装饰器模式的应用场景：
+
+1、需要扩展一个类的功能。
+
+2、动态的为一个对象增加功能，而且还能动态撤销。（继承不能做到这一点，继承的功能是静态的，不能动态增删。）
+
+缺点：产生过多相似的对象，不易排错！
+
+实际运用：字节、字符流操作对象InputStream，BufferReader,FileInputStream等
+ */
+/*
+8、代理模式（Proxy）
+
+其实每个模式名称就表明了该模式的作用，代理模式就是多一个代理类出来，替原对象进行一些操作，比如我们在租房子的时候回去找中介，为什么呢？因为你对该地区房屋的信息掌握的不够全面，希望找一个更熟悉的人去帮你做，此处的代理就是这个意思。再如我们有的时候打官司，我们需要请律师，因为律师在法律方面有专长，可以替我们进行操作，表达我们的想法。先来看看关系图：
+
+根据上文的阐述，代理模式就比较容易的理解了，我们看下代码：
+
+public interface Sourceable {
+    public void method();
+}
+public class Source implements Sourceable {
+    @Override
+    public void method() {
+        System.out.println("the original method!");
+    }
+}
+public class Proxy implements Sourceable {
+    private Source source;
+    public Proxy(){//代理模式的构造函数不需要传入被装饰类，这点是和装饰模式的最大不同
+        super();
+        this.source = new Source();//直接创建需要代理的类 的对象即可
+    }
+    @Override
+    public void method() {
+        before();
+        source.method();
+        after();
+    }
+    private void after() {
+        System.out.println("after proxy!");
+    }
+    private void before() {
+        System.out.println("before proxy!");
+    }
+}
+测试类：
+public class ProxyTest {
+    public static void main(String[] args) {
+        Sourceable source = new Proxy();//不依赖被代理类的已创建对象，只要有个被代理类即可
+        source.method();
+    }
+}
+输出：
+before proxy!
+the original method!
+after proxy!
+
+代理模式的应用场景：
+
+如果已有的方法在使用的时候需要 对原有的方法进行改进 ，此时有两种办法：
+
+1、修改原有的方法来适应。这样违反了“对扩展开放，对修改关闭”的原则。
+
+2、就是采用一个代理类 调用原有的方法，且对产生的结果进行控制。这种方法就是代理模式。
+
+使用代理模式，可以将功能划分的更加清晰，有助于后期维护！
+
+装饰模式：装饰  对象
+代理模式：代理  类
+ */
+
+/*
+13、策略模式（strategy）
+
+策略模式定义了一系列算法，并将每个算法封装起来，使他们可以相互替换，且算法的变化不会影响到使用算法的客户。需要设计一个接口，为一系列实现类提供统一的方法，
+多个实现类实现该接口，设计一个抽象类（可有可无，属于辅助类），提供辅助函数，关系图如下：
+
+图中ICalculator提供同意的方法，
+AbstractCalculator是辅助类，提供辅助方法，接下来，依次实现下每个类：
+
+首先统一接口：
+public interface ICalculator {
+    public int calculate(String exp);
+}
+辅助类：
+public abstract class AbstractCalculator {
+    public int[] split(String exp,String opt){
+        String array[] = exp.split(opt);
+        int arrayInt[] = new int[2];
+        arrayInt[0] = Integer.parseInt(array[0]);
+        arrayInt[1] = Integer.parseInt(array[1]);
+        return arrayInt;
+    }
+}
+三个实现类：
+public class Plus extends AbstractCalculator implements ICalculator {
+    @Override
+    public int calculate(String exp) {
+        int arrayInt[] = split(exp,"\\+");
+        return arrayInt[0]+arrayInt[1];
+    }
+}
+
+public class Minus extends AbstractCalculator implements ICalculator {
+@Override
+public int calculate(String exp) {
+        int arrayInt[] = split(exp,"-");
+        return arrayInt[0]-arrayInt[1];
+    }
+}
+
+public class Multiply extends AbstractCalculator implements ICalculator {
+@Override
+    public int calculate(String exp) {
+        int arrayInt[] = split(exp,"\\*");
+        return arrayInt[0]*arrayInt[1];
+    }
+}
+简单的测试类：
+public class StrategyTest {
+    public static void main(String[] args) {
+        String exp = "2+8";
+        ICalculator cal = new Plus();
+        int result = cal.calculate(exp);
+        System.out.println(result);
+    }
+}
+输出：10
+
+策略模式的决定权在用户，系统本身提供不同算法的实现，新增或者删除算法，对各种算法做封装。因此，策略模式多用在算法决策系统中，外部用户只需要决定用哪个算法即可。
+ */
+
+/*
+15、观察者模式（Observer）：对复杂依赖的管理
+
+包括这个模式在内的接下来的四个模式，都是类和类之间的关系，不涉及到继承，学的时候应该 记得归纳，记得本文最开始的那个图。
+观察者模式很好理解，类似于邮件订阅和RSS订阅，当我们浏览一些博客或wiki时，经常会看到RSS图标，就这的意思是，当你订阅了该文章，如果后续有更新，会及时通知你。
+其实，简单来讲就一句话：当一个对象变化时，其它依赖该对象的对象都会收到通知，并且随着变化！对象之间是一种一对多的关系。先来看看关系图：
+
+我解释下这些类的作用：MySubject类就是我们的主对象，Observer1和Observer2是依赖于MySubject的对象，当MySubject变化时，Observer1和Observer2必然变化。
+AbstractSubject类中定义着需要监控的对象列表，可以对其进行修改：增加或删除被监控对象，且当MySubject变化时，负责通知在列表内存在的对象。我们看实现代码：
+
+一个Observer接口：
+
+public interface Observer {
+    public void update();
+}
+两个实现类：
+
+public class Observer1 implements Observer {
+    @Override
+    public void update() {
+        System.out.println("observer1 has received!");
+    }
+}
+public class Observer2 implements Observer {
+    @Override
+    public void update() {
+        System.out.println("observer2 has received!");
+    }
+}
+
+Subject接口及实现类：
+public interface Subject {
+    //增加观察者
+    public void add(Observer observer);
+
+    //删除观察者
+    public void del(Observer observer);
+
+    //通知所有的观察者
+    public void notifyObservers();
+
+    //自身的操作
+    public void operation();
+}
+public abstract class AbstractSubject implements Subject {
+    private Vector<Observer> vector = new Vector<Observer>();
+    @Override
+    public void add(Observer observer) {
+        vector.add(observer);
+    }
+
+    @Override
+    public void del(Observer observer) {
+        vector.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers() {
+        Enumeration<Observer> enumo = vector.elements();
+        while(enumo.hasMoreElements()){
+            enumo.nextElement().update();
+        }
+    }
+}
+public class MySubject extends AbstractSubject {
+    @Override
+    public void operation() {
+        System.out.println("update self!");
+        notifyObservers();
+    }
+}
+
+测试类：
+public class ObserverTest {
+    public static void main(String[] args) {
+        Subject sub = new MySubject();
+        sub.add(new Observer1());
+        sub.add(new Observer2());
+
+        sub.operation();
+    }
+}
+输出：
+
+        update self!
+        observer1 has received!
+        observer2 has received!
+
+        这些东西，其实不难，只是有些抽象，不太容易整体理解，建议读者：根据关系图，新建项目，自己写代码（或者参考我的代码）,按照总体思路走一遍，这样才能体会它的思想，理解起来容易！
+ */

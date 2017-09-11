@@ -1305,34 +1305,36 @@ ${tyreBrand.tyreInsFlag?string("是", "否")}转换boolean为对应字符串
 
 
                                 EXPLAIN SELECT * FROM `t_store` where phone = '13805746240';  --type=const说明使用了唯一索引或者主键，返回记录一定是1行记录的等值where条件时;Extra=NULL
-                                EXPLAIN SELECT phone FROM `t_store` where phone = '13805746240';  --type=const说明使用了唯一索引或者主键，返回记录一定是1行记录的等值where条件时;Extra=Using index
+                                EXPLAIN SELECT phone FROM `t_store` where phone = '13805746240';  --此时phone已设置为唯一索引，type=const说明使用了唯一索引或者主键，返回记录一定是1行记录的等值where条件时;Extra=Using index
                                 说明 查询的字段在查询条件的字段中，且查询字段是 单键索引/或者多列索引的非最左字段，则执行计划是Extra=Using index;
 
+                                --phone改为联合索引中的一员后如下:
                                 EXPLAIN SELECT `PASSWORD` FROM t_store WHERE salt = '13968140594'; --执行计划是Extra=Using where;Using INDEX
-                                因为密码数据在所加载的索引文件（所使用的索引是idx_salt_password_phone）中无法直接获得,还需要根据索引中的地址指针找到磁盘中的密码数据
-                                EXPLAIN SELECT `PASSWORD` FROM t_store WHERE PASSWORD = '6a66880ed845c57c903def3e6a30a681'; --执行计划是Extra=Using index，
-                                因为查询的字段在查询条件的字段中，且查询字段是 单键索引/或者多列索引的最左字段，所以密码数据在所加载的索引文件（所使用的索引是idx_salt_password_phone）中可以直接获得,
+                                因为密码数据在所加载的索引文件（所使用的索引是idx_password_salt_phone）中无法直接获得,还需要根据索引中的地址指针找到磁盘中的密码数据
+                                EXPLAIN SELECT `PASSWORD` FROM t_store WHERE PASSWORD = '6a66880ed845c57c903def3e6a30a681'; --执行计划是Extra=Using index;type=ref（使用了普通索引的等值条件）,key=idx_password_salt_phone,rows=1
+                                因为查询的字段在查询条件的字段中，且查询字段是 单键索引/或者多列索引的最左字段，所以密码数据在所加载的索引文件（所使用的索引是idx_password_salt_phone）中可以直接获得,
                                 不需要再根据索引中的地址指针找到磁盘中的密码数据。
-                                EXPLAIN SELECT `phone` FROM t_store WHERE phone = '13805746240'; --执行计划是Extra=Using where; Using index，
-                                因为查询的字段在查询条件的字段中，且查询字段不是 单键索引/或者多列索引的最左字段，所以密码数据在所加载的索引文件（所使用的索引是idx_salt_password_phone）中不可以直接获得,
+                                EXPLAIN SELECT `phone` FROM t_store WHERE phone = '13805746240'; --执行计划是Extra=Using where; Using index;（跟下面salt原因一样）
+                                因为查询的字段在查询条件的字段中，且查询字段不是 单键索引/或者多列索引的最左字段，所以密码数据在所加载的索引文件（所使用的索引是idx_password_salt_phone）中不可以直接获得,
                                 还需要再根据索引中的地址指针找到磁盘中的密码数据。
-                                EXPLAIN SELECT `salt` FROM t_store WHERE salt = '13968140594'; --执行计划是Extra=Using where;Using INDEX,查询的字段salt和查询条件的字段salt相同，但查询字段salt不是 单键索引/或者多列索引的非最左字段,
-                                salt数据在所加载的索引文件（所使用的索引是idx_salt_password_phone）中无法直接获得,还需要根据索引中的地址指针找到磁盘中的salt数据。
-                                EXPLAIN SELECT `salt` FROM t_store WHERE PASSWORD = '6a66880ed845c57c903def3e6a30a681' and salt = '13968140594'; --执行计划是Extra=Using where;Using INDEX
-                                因为查询的字段在查询条件的字段中，且查询字段的排序与多列索引的字段相同,最左匹配
-                                salt数据在所加载的索引文件（所使用的索引是idx_salt_password_phone）中可以直接获得,不需要根据索引中的地址指针找到磁盘中的salt数据。
+                                EXPLAIN SELECT `salt` FROM t_store WHERE salt = '13968140594'; --执行计划是Extra=Using where;Using index,type=index（索引表全表扫描），rows=31977,key=idx_password_salt_phone
+                                因为查询的字段salt和查询条件的字段salt相同，但查询字段salt不是 单键索引/或者多列索引的非最左字段,
+                                salt数据在所加载的索引文件（所使用的索引是idx_password_salt_phone）中无法直接获得,还需要根据索引中的地址指针找到磁盘中的salt数据。
+                                EXPLAIN SELECT `salt` FROM t_store WHERE PASSWORD = '6a66880ed845c57c903def3e6a30a681' and salt = '13968140594'; --执行计划是Extra=Using index;（因为满足最左匹配），即：
+                                因为查询的字段在查询条件的字段中，且查询字段的排序与多列索引的字段顺序相同,最左匹配
+                                salt数据在所加载的索引文件（所使用的索引是idx_password_salt_phone）中可以直接获得,不需要根据索引中的地址指针找到磁盘中的salt数据。
                                 EXPLAIN SELECT * FROM t_store WHERE PASSWORD = '6a66880ed845c57c903def3e6a30a681' and salt = '13968140594'; --执行计划是Extra=NULL,因为查询字段是*
-                                EXPLAIN SELECT `salt` FROM t_store WHERE is_enabled = 1 and PASSWORD = '6a66880ed845c57c903def3e6a30a681' and salt = '13968140594' ; --执行计划是Extra=Using where;Using INDEX
-                                因为查询的字段在查询条件的字段中，且查询字段的排序与多列索引的字段相同,最左匹配
-                                salt数据在所加载的索引文件（所使用的索引是idx_salt_password_phone）中可以直接获得,不需要根据索引中的地址指针找到磁盘中的salt数据。
+                                EXPLAIN SELECT `salt` FROM t_store WHERE is_enabled = 1 and PASSWORD = '6a66880ed845c57c903def3e6a30a681' and salt = '13968140594' ; --执行计划是Extra=Using where
+                                因为查询的字段在查询条件的字段中，且查询字段中含有非索引字段，所以执行计划为Using where,但是任然使用了组合索引
+
 
                                 EXPLAIN SELECT * FROM t_store where user_name = '13806517253';  --type=const说明使用了唯一索引或者主键，返回记录一定是1行记录的等值where条件时
 
                                 EXPLAIN select id from t_store where id = 194;
 
                                 EXPLAIN SELECT * FROM t_store where user_name like '%138%';  --使用的是全表扫描，type=ALL，ref=NULL rows=全表行数 且没有使用索引key=NULL
-                                使用全局索引(注意：全文索引的字段内容不能用逗号分隔,不可以有汉字)后，建立fuk_username， 字段user_name,索引类型FULL TEXT,索引方法null后：
-                                EXPLAIN SELECT * FROM t_store where MATCH (`user_name`) AGAINST ('138');    --type=fulltext ref=const rows=1 Extra=Using where;Ft_hints:sorted
+                                ***使用全局索引(注意：全文索引的字段内容不能用逗号分隔,不可以有汉字)后，建立fuk_username， 字段user_name,索引类型FULL TEXT,索引方法null后：
+                                **EXPLAIN SELECT * FROM t_store where MATCH (`user_name`) AGAINST ('138');    --type=fulltext ref=const rows=1 Extra=Using where;Ft_hints:sorted
 
                                 EXPLAIN SELECT * FROM t_store where sourceid is null;  --当索引为sourceid的单键索引时使用索引Using index condition
                                 EXPLAIN SELECT * FROM t_store where sourceid is null;  --当索引为sourceid的和虚拟列创建多列索引时未使用索引未使用索引
@@ -1372,3 +1374,263 @@ ${tyreBrand.tyreInsFlag?string("是", "否")}转换boolean为对应字符串
                                 　　高效： select JOB , AVG(SAL) FROM EMP where JOB = ‘PRESIDENT’ OR JOB = ‘MANAGER’ GROUP BY JOB
 
                                 -- 先过滤后分组明显要比先分组后过滤要快，因为少了很多的的分组计算和处理的记录。
+
+
+***jQuery表单验证validate.js使用记录：实现多个属性的合并重复校验，如：
+                1.在有直径参数的情况下，品牌和花纹可以有重复，但是三个参数不能同时重复；
+                2.在没有选择直径参数的情况下，品牌和花纹不能同时重复（其实也相当于三个参数同时重复的情况）。
+
+                    1.html的代码：
+<body>
+    <div class="path">
+        <a href="${base}/admin/common/index.cgi">${message("admin.path.index")}</a> &raquo; ${message("admin.tyreBrandPatternSetting.edit")}
+    </div>
+    <form id="inputForm" action="update.cgi" method="post" enctype="multipart/form-data">
+    <input type="hidden" id="id" name="id" value="${tyreBrandPatternInfo.id}" />
+    <table class="input tabContent">
+         <tr>
+			<th>
+				<span class="requiredField">*</span>${message("TyreBrandPatternSetting.tyreBrandName")}:
+			</th>
+			<td>
+				<label class="select">
+					<select id="tyreBrandId" name="tyreBrandId" class="remove" onchange="removeError()">
+                        //class="remove"用于方便一起清除三个参数的错误样式。
+                        //onchange方法指三个参数下拉框的一个被点击时清除三个参数的错误样式和错误提示，错误提示由于设置插入了span标签中
+						<option value="">${message("admin.common.choose")}</option>
+                    [#list brands as brand]
+                        <option value="${brand.id}"[#if tyreBrandPatternInfo.tyreBrandId == brand.id] selected="selected"[/#if]>${brand.name}</option>
+                    [/#list]
+					</select>
+                    <span class="selected"></span> //span用于接收三个参数同时重复（包括空值重复）时的错误提示，class="selected"方便于一起清除三个参数的错误提示
+				</label>
+			</td>
+		 </tr>
+         <tr>
+			<th>
+				<span class="requiredField">*</span>${message("TyreBrandPatternSetting.tyrePatternName")}:
+			</th>
+			<td>
+				<label class="select">
+					<select id="tyrePatternName" name="tyrePatternName" class="remove" onchange="removeError()">
+						<option value="">${message("admin.common.choose")}</option>
+                    [#list dictionarys as dictionary]
+                        <option value="${dictionary.dataValue}"[#if tyreBrandPatternInfo.tyrePatternName == dictionary.dataValue] selected="selected"[/#if]>${dictionary.dataValue}</option>
+                    [/#list]
+					</select>
+                    <span class="selected"></span>
+				</label>
+			</td>
+		 </tr>
+         <tr>
+			<th>
+				<span class="requiredField">*</span>${message("TyreBrandPatternSetting.tyreRim")}:
+			</th>
+			<td>
+				<label class="select">
+                    <select id="tyreRim" name="tyreRim" class="remove" onchange="removeError()">
+                        <option value="">${message("admin.common.choose")}</option>
+                    [#list tyreRimList as tyreRim]
+                        <option value="${tyreRim.value}" [#if tyreRim.value == tyreBrandPatternInfo.tyreRim]selected="selected"[/#if]>${tyreRim.name}</option>
+                    [/#list]
+                    </select>
+                    <span class="selected"></span>
+				</label>
+			</td>
+		 </tr>
+        <tr>
+            <th>
+                <span class="requiredField">*</span>${message("TyreBrandPatternSetting.tyreType")}:
+            </th>
+            <td>
+                <label class="select">
+                    <select id="tyreType" name="tyreType">
+                        <option value="">${message("admin.common.choose")}</option>
+                    [#list tyreTypes as tyreType]
+                        <option value="${tyreType.id}" [#if tyreBrandPatternInfo.tyreType == tyreType.id] selected="selected"[/#if]>${tyreType.name}</option>
+                    [/#list]
+                    </select>
+					<span></span>
+                </label>
+            </td>
+        </tr>
+         <tr>
+			<th>
+				<span class="requiredField">*</span>${message("TyreBrandPatternSetting.tyreInsFlag")}:
+			</th>
+			<td>
+				<label>
+					<input type="checkbox" name="tyreInsFlag" value="true" [#if tyreBrandPatternInfo.tyreInsFlag]checked="checked"[/#if] />
+					<input type="hidden" name="_tyreInsFlag" value="false" />
+				</label>
+			</td>
+		 </tr>
+         <tr>
+            <th>
+                <span class="requiredField">*</span>${message("TyreBrandPatternSetting.photoUrl")}:
+            </th>
+            <td>
+                <input type="file" name="photoFile" />
+				<span></span>
+            </td>
+         </tr>
+    [#if tyreBrandPatternInfo.photoUrl??]
+        <tr>
+            <th></th>
+            <td>
+                <a href="${tyreBrandPatternInfo.photoUrl}" target="_blank"><img src="${tyreBrandPatternInfo.photoUrl}" width="120" height="120" /></a>
+            </td>
+         </tr>
+    [/#if]
+    </table>
+    <table class="input">
+        <tr>
+            <th>
+                &nbsp;
+            </th>
+            <td>
+                <input type="button" id="submitBtn" class="button" value="${message("admin.common.submit")}" />//改成普通按钮提交表单，增加提交前的操作
+                <input type="button" class="button" value="${message("admin.common.back")}" onclick="location.href='list.cgi'" />
+            </td>
+        </tr>
+    </table>
+    </form>
+</body>
+
+                2.js中的代码：
+<script type="text/javascript">
+    $().ready(function () {
+
+        var $inputForm = $('#inputForm');
+        var $submitBtn = $('#submitBtn');
+
+    [@flash_message /]
+
+        $submitBtn.click(function () {//点击提交表单按钮，进行表单验证
+            var flag = $inputForm.valid();
+            if(!flag){
+                //没有通过验证
+                return;
+            }
+            $inputForm.submit();//验证通过，提交表单到后端
+        });
+
+        $inputForm.validate({//具体验证规则和内容
+            rules: {
+                tyreBrandId: {
+                    required: true,  //这个说明该参数不能为空，即必须输入值
+                    remote: { //通过异步进行参数校验
+                        data: {  //传给后端url接口的数据，json格式
+                            id: function () {  //由于是编辑，需要将当前记录的id传入后端，便于定位，且编辑时三个参数可以和自己一样，即需要排除掉自己的重复判断
+                                return $('#id').val();
+                            },
+                            tyreBrandId: function () {
+                                return $('#tyreBrandId').val();
+                            },
+                            tyrePatternName: function () {
+                                return $('#tyrePatternName').val();
+                            },
+                            tyreRim: function () {
+                                return $('#tyreRim').val();
+                            }
+                        },
+                        url: "checkBrandPattern.cgi",  //验证参数的后端url接口
+                    }
+                },
+                tyrePatternName: {
+                    required: true,
+                    remote: {
+                        data: {
+                            id: function () {
+                                return $('#id').val();
+                            },
+                            tyreBrandId: function () {
+                                return $('#tyreBrandId').val();
+                            },
+                            tyrePatternName: function () {
+                                return $('#tyrePatternName').val();
+                            },
+                            tyreRim: function () {
+                                return $('#tyreRim').val();
+                            }
+                        },
+                        url: "checkBrandPattern.cgi",
+                    }
+                },
+                tyreRim: {
+                    remote: {
+                        data: {
+                            id: function () {
+                                return $('#id').val();
+                            },
+                            tyreBrandId: function () {
+                                return $('#tyreBrandId').val();
+                            },
+                            tyrePatternName: function () {
+                                return $('#tyrePatternName').val();
+                            },
+                            tyreRim: function () {
+                                return $('#tyreRim').val();
+                            }
+                        },
+                        url: "checkBrandPattern.cgi",
+                    },
+                },
+                tyreType: {
+                    required: true
+                },
+                photoFile: {
+//                    required: true,
+                    extension: "${setting.uploadImageExtension}"
+                }
+            },
+            messages: {  //检验失败后的提示信息（错误提示）
+                tyreBrandId: {
+                    required: "请选择品牌", //当参数未填写时显示的提示信息
+                    remote: "品牌花纹已存在"  //当异步参数校验失败返回false时，显示的错误提示信息
+                },
+                tyrePatternName: {
+                    required: "请选择花纹",
+                    remote: "品牌花纹已存在"
+                },
+                tyreRim: {
+                    remote: "品牌花纹直径均已存在"
+                },
+                tyreType: {
+                    required: "请选择轮胎类型"
+                },
+//                photoFile: {
+//                    required: "请上传图片"
+//                }
+            },
+            errorPlacement:function(error,element){  //修改检验参数后，提示信息出现的位置
+                error.appendTo(element.siblings("span")); //这里设置为，提示信息出现在 需校验的标签element 的 身为它兄弟标签siblings的span标签内
+            },
+//            success: function() { //所有参数检验成功后回调的函数功能
+//
+//            }
+        });
+    });
+    function removeError() { //绑定onchange改变事件
+        $(".selected label").text(""); //清除span标签内的错误提示
+        $(".remove").removeClass("fieldError"); //清除被校验标签的 错误样式
+        $(".remove").removeData("previousValue"); //清除被校验标签的 错误内容存储，不清除的话，会导致同一需校验标签处前后选同一个参数值，不会引发校验
+    }
+</script>
+
+                                .span_vertical{
+                                position: relative;
+                                top: 2px;
+                                padding: 8px 8px;
+                                border-radius: 5px;
+                                cursor: pointer;
+                                /*margin-left: 20px;*/
+                                }
+                                .submit_1{
+                                background:#4F8BFD;
+                                font-family: "Microsoft YaHei UI";
+                                color: #FFFFFF;
+                                padding: 10px 20px;
+                                margin-right: 20px;
+                                }
+                                按钮属性class="span_vertical submit_1"
