@@ -1634,3 +1634,111 @@ ${tyreBrand.tyreInsFlag?string("是", "否")}转换boolean为对应字符串
                                 margin-right: 20px;
                                 }
                                 按钮属性class="span_vertical submit_1"
+
+
+
+**       //标签
+        if(CollectionUtils.isNotEmpty(searchDto.getLabel())){
+            c.andCondition("label REGEXP replace('"+ LabelEnum.getLabelStrs(searchDto.getLabel())+"',',','|') ");
+        } else if (null != searchDto.getLabelEnum()) {
+            c.andCondition("label REGEXP ", searchDto.getLabelEnum()); //andCondition为自定义条件，而REGEXP 指数据库字符串label包含 后面的字符串的 所有记录
+        }
+
+****问题：传输数据用的DTO, 原本DTO的List属性（存的Enum枚举数据，即List<LabelEnum>）是有值的，调用RPC接口后，在RPC接口实现类中，传过来的DTO对象的List数据丢失，变成NULL
+    试了好久，才发现真正原因是DTO的getter和setter方法有问题：删除原本的getter和setter方法，用alt+insert重新创建。理由不明
+        结果：修改DTO的getter和setter方法后，List数据不再丢失
+
+
+****解决emoji表情的数据库输入问题：先设置数据库对应字段（列）的字符集为UTF8MB4，然后service层，在进行数据库插入和更新操作前设置sql语句“SET NAMES 'utf8mb4'”
+      更新时：
+            storeShowMapper.setUTF8MB4();
+            storeShowMapper.updateByPrimaryKey(show);
+      插入时：
+            storeShowMapper.setUTF8MB4();
+            storeShowMapper.insertSelective(show);
+
+setUTF8MB4()方法：
+public interface BaseMapper<T> extends Mapper<T>, MySqlMapper<T> {
+    //TODO
+    //FIXME 特别注意，该接口不能被扫描到，否则会出错
+
+    @Select("SET NAMES 'utf8mb4'")
+    public void setUTF8MB4();
+}
+
+
+
+****dialog弹窗的非空验证，验证不通过时不关闭弹窗，且是对单选框的非空验证：
+         1.body层：
+    <body>
+        ...
+         <td>
+            <input type="button" class="button" value="${message("admin.common.label")}" onclick="javascript:;" id="labelButton"/> //触发dialog弹窗的按钮
+        </td>
+        ...
+            <!-- 隐藏表单 -->
+        <form id="labelForm" action="updateLabel.cgi" method="post">//要进行表单验证的表单
+            <input type="hidden" name="id" value="${showInfo.id}" />
+            <input type="hidden" name="labels" id="labelInput" />//要进行表单验证的表单中name=labels的input标签
+            <input type="hidden" name="ids" value="${ids}"/>
+            <input type="hidden" name="index" value="${index}"/>
+        </form>
+    </body>
+         2.js层：
+        var $labelForm = $('#labelForm');  //要进行表单验证的表单
+        var $labelInput = $('#labelInput'); //要进行表单验证的表单中name=labels的input标签
+        var $labelButton = $('#labelButton'); //触发dialog弹窗的按钮
+
+        $labelButton.click(function() {
+        $.dialog({  //dialog弹窗：内容是  单选框，
+            title: "打标",
+            type : 'iframe',
+            [@compress single_line = true]
+                content: '
+            <table id="moreTable" class="moreTable">
+            <tr>
+                [#list labelEnums as labelEnum]
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;<input name="label" type="radio" value="${labelEnum}" [#if labelList?seq_contains(labelEnum)] checked="checked"[/#if] />${labelEnum.getName()}<\/td>
+                [/#list]
+                <\/tr>
+                <\/table>',
+            [/@compress]
+            width: 600,
+            modal: true,
+            ok: "${message("admin.dialog.ok")}",
+            cancel: "${message("admin.dialog.cancel")}",
+            onOk: function() {
+                var chk_value =[];
+                $('input[name="label"]:checked').each(function(){ //获取遍历name="label"的所有单选框，如果被选中了checked，则将值存入 数组
+                    chk_value.push($(this).val());
+                });
+
+                $labelInput.val(chk_value); //将数组的值存入 隐藏表单的name=labels的input标签中
+                var flag = $labelForm.valid(); //主动进行表单的验证
+                if(flag) { //flag = true表示表单验证通过
+                    $labelForm.submit(); //提交表单的隐藏域
+                    return; //返回
+                }
+                return false;//重要：***返回false，这样表单验证不通过不会关闭弹窗
+            }
+        });
+    });
+
+    $("#labelForm").validate({ //表单验证内容
+        errorPlacement:function(error,element){
+            error.appendTo(".dialogTitle"); //错误提示信息展示的位置， .appendTo(selector)是jQuery方法，在被选元素的结尾（仍然在元素内部）插入指定内容。可以是选择器
+                                        //这里的.dialogTitle是dialog弹窗的标题，于是我把提示信息插到 标题后面，显而易见。
+        },
+        rules: {
+            labels: {
+                required: true,//labels是表单的 input标签的名称，这个标签的内容将在用户在dialog弹窗中 进行单选框的选择后点击确定后的onOk()方法里对该标签进行赋值，所以该标签没值时说明用户未进行单选框选择。
+                                        //validate一般都是对标签的名称进行操作。
+                                        //required:true表示这个input标签的内容不能为空。为空提示 错误提示信息
+            },
+        },
+        messages: {
+            labels: {
+                required: "请选择一个标签",//为空的错误提示信息：说明用户未进行dialog弹窗的单选框选择
+            },
+        },
+    });

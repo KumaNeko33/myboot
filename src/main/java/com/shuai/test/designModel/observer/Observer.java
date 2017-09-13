@@ -1,4 +1,4 @@
-package observer;
+package com.shuai.test.designModel.observer;
 
 /**
  * @Author: MiaoHongShuai
@@ -7,5 +7,5 @@ package observer;
  * @Modified By:
  */
 public interface Observer {
-    void update(ModifyObserver modifyObserver, String value);//得到通知后调用的方法
+    void update(Subject subject, String value);//得到通知后调用的方法
 }

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -491,7 +491,84 @@ public class StoreController implements Sorter{
 //            假定让飞机a，飞回终点，邮箱最多能装1/2路程的油，就是说飞机a飞到1/2路程时，后面还需要加1/2油
 //故三架飞机即可
 
+/*
+5、原型模式（Prototype）
+原型模式虽然是创建型的模式，但是与工程模式没有关系，从名字即可看出，该模式的思想就是将一个对象作为原型，对其进行复制、克隆，产生一个和原对象类似的新对象。本小结会通过对象的复制，进行讲解。在Java中，复制对象是通过clone()实现的，先创建一个原型类：
 
+public class Prototype implements Cloneable {
+    public Object clone() throws CloneNotSupportedException {
+        Prototype proto = (Prototype) super.clone();
+        return proto;
+    }
+}
+很简单，一个原型类，只需要实现Cloneable接口，覆写clone方法，此处clone方法可以改成任意的名称，因为Cloneable接口是个空接口，你可以任意定义实现类的方法名，
+如cloneA或者cloneB，因为此处的重点是super.clone()这句话，super.clone()调用的是Object的clone()方法，而在Object类中，clone()是native的，具体怎么实现，
+我会在另一篇文章中，关于解读Java中本地方法的调用，此处不再深究。在这儿，我将结合对象的浅复制和深复制来说一下，首先需要了解对象深、浅复制的概念：
+
+浅复制：将一个对象复制后，基本数据类型的变量都会重新创建，而引用类型，指向的还是原对象所指向的。
+
+深复制：将一个对象复制后，不论是基本数据类型还有引用类型，都是重新创建的。简单来说，就是深复制进行了完全彻底的复制，而浅复制不彻底。
+
+此处，写一个深浅复制的例子：
+
+public class Prototype implements Cloneable, Serializable {
+
+    private static final long serialVersionUID = 1L;
+    private String string;
+
+    private SerializableObject obj;
+
+    // 浅复制
+    public Object clone() throws CloneNotSupportedException {
+        Prototype proto = (Prototype) super.clone();
+        return proto;
+    }
+
+    // 深复制
+    public Object deepClone() throws IOException, ClassNotFoundException {
+
+        // 写入当前对象的二进制流
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(bos);//使用了 装饰器设计模式
+        oos.writeObject(this);//将当前对象写入流中成为字节数组
+
+// 改良版：try(ByteArrayOutputStream baos = new ByteArrayOutputStream();ObjectOutputStream oos = new ObjectOutputStream(baos)){
+//            oos.writeObject(this);
+//         }
+
+        // 读出二进制流产生的新对象
+        ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+        ObjectInputStream ois = new ObjectInputStream(bis);
+        return ois.readObject();//将流中的字节数组读取并转换成对象，然后return返回当前对象的深克隆
+
+// 改良版：try(ByteArrayInputStream bais = new ByteArrayInputStream();ObjectInputStream ois = new ObjectInputStream(bais)){
+//            return ois.readObject();
+//        }
+    }
+
+    public String getString() {
+        return string;
+    }
+
+    public void setString(String string) {
+        this.string = string;
+    }
+
+    public SerializableObject getObj() {
+        return obj;
+    }
+
+    public void setObj(SerializableObject obj) {
+        this.obj = obj;
+    }
+}
+
+class SerializableObject implements Serializable {
+    private static final long serialVersionUID = 1L;
+}
+
+要实现深复制，需要采用流的形式读入当前对象的二进制输入，再写出二进制数据对应的对象。
+ */
 
 /*
 7、装饰模式（Decorator）:可以有效的替代继承
@@ -620,9 +697,99 @@ after proxy!
  */
 
 /*
+9、外观模式（Facade，也称门面模式）
+外观模式是为了解决类与类之间的依赖关系的，像spring一样，可以将类和类之间的关系配置到配置文件中，而外观模式就是将他们的关系放在一个Facade类中，
+降低了类类之间的耦合度，该模式中没有涉及到接口，看下类图：（我们以一个计算机的启动过程为例）
+
+我们先看下实现类：
+
+public class CPU {
+    public void startup(){
+        System.out.println("cpu startup!");
+    }
+
+    public void shutdown(){
+        System.out.println("cpu shutdown!");
+    }
+}
+
+public class Memory {
+    public void startup(){
+        System.out.println("memory startup!");
+    }
+
+    public void shutdown(){
+        System.out.println("memory shutdown!");
+    }
+}
+
+public class Disk {
+    public void startup(){
+        System.out.println("disk startup!");
+    }
+
+    public void shutdown(){
+        System.out.println("disk shutdown!");
+    }
+}
+
+public class Computer {
+    private CPU cpu;
+    private Memory memory;
+    private Disk disk;
+
+    public Computer(){
+        cpu = new CPU();
+        memory = new Memory();
+        disk = new Disk();
+    }
+
+    public void startup(){
+        System.out.println("start the computer!");
+        cpu.startup();
+        memory.startup();
+        disk.startup();
+        System.out.println("start computer finished!");
+    }
+
+    public void shutdown(){
+        System.out.println("begin to close the computer!");
+        cpu.shutdown();
+        memory.shutdown();
+        disk.shutdown();
+        System.out.println("computer closed!");
+    }
+}
+User类如下：
+public class User {
+
+    public static void main(String[] args) {
+        Computer computer = new Computer();
+        computer.startup();
+        computer.shutdown();
+    }
+}
+输出：
+
+start the computer!
+cpu startup!
+memory startup!
+disk startup!
+start computer finished!
+begin to close the computer!
+cpu shutdown!
+memory shutdown!
+disk shutdown!
+computer closed!
+
+如果我们没有Computer类，那么，CPU、Memory、Disk他们之间将会相互持有实例，产生关系，这样会造成严重的依赖，修改一个类，可能会带来其他类的修改，
+这不是我们想要看到的，有了Computer类，他们之间的关系被放在了Computer类里，这样就起到了解耦的作用，这，就是外观（门面）模式！
+ */
+
+/*
 13、策略模式（strategy）
 
-策略模式定义了一系列算法，并将每个算法封装起来，使他们可以相互替换，且算法的变化不会影响到使用算法的客户。需要设计一个接口，为一系列实现类提供统一的方法，
+策略模式定义了一系列算法，并将每个算法封装起来，使他们可以相互替换，且算法的变化不会影响到使用算法的客户，算法也相当于组成客户（人)的肢体（肢体通过接口和实现类来构造，客户中已经存在了肢体的槽位，只要在构造客户）。需要设计一个接口，为一系列实现类提供统一的方法，
 多个实现类实现该接口，设计一个抽象类（可有可无，属于辅助类），提供辅助函数，关系图如下：
 
 图中ICalculator提供同意的方法，

@@ -1,4 +1,4 @@
-package observer;
+package com.shuai.test.designModel.observer;
 
 /**
  * @Author: MiaoHongShuai
@@ -6,7 +6,7 @@ package observer;
  * @Date: Created on 2017/9/11
  * @Modified By:
  */
-public interface ModifyObserver {
+public interface Subject {
     //添加观察者
     void add(Observer observer);
 

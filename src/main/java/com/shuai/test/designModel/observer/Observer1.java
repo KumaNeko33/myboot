@@ -1,4 +1,4 @@
-package observer;
+package com.shuai.test.designModel.observer;
 
 /**
  * @Author: MiaoHongShuai
@@ -8,7 +8,7 @@ package observer;
  */
 public class Observer1 implements Observer {
     @Override
-    public void update(ModifyObserver modifyObserver, String value) {
+    public void update(Subject subject, String value) {
         System.out.println("Observer1 has received " + value + "!");
     }
 }

@@ -107,14 +107,6 @@ public class TestController {
 //                return instance;
 //            }
 //        }
-//         public class Singleton {
-//            private Singleton(){
-//            }//构造函数私有化，无法主动 实例化对象
-//            private static Singleton instance = new Singleton();
-//            public static Singleton getInstance(){
-//                return instance;
-//            }
-//        }
 //        懒汉式单例
 //        public class Singleton {
 //            private static Singleton instance = null;
@@ -123,18 +115,6 @@ public class TestController {
 //                if (instance == null) instance ＝ new Singleton();
 //                return instance;
 //            }
-//        }
-//        public class Singleton{
-//             private Singleton(){}
-//             private static Singleton instance = null;
-//             public static Singleton getInstance(){
-//                 synchronized (this){
-//                     if (instance == null) {
-//                         instance = new Singleton();
-//                     }
-//                     return instance;
-//                 }
-//             }
 //        }
 //        public class Singleton{
 //             private Singleton(){}
