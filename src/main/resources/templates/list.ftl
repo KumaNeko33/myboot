@@ -1176,61 +1176,61 @@ js中
                                     var countModel = $("#countModel").val();
                                     var message = "确定下架该卖家秀内容模板？";
                                     if(status == "true") {
-                                    if(countModel == 4) {
-                                    message = "请最少保留4个内容模板！";
-                                    layer.msg(message,{icon:2});
-                                    return false;
-                                    }
+                                        if(countModel == 4) {
+                                        message = "请最少保留4个内容模板！";
+                                        layer.msg(message,{icon:2});
+                                        return false;
+                                        }
                                     }
                                     if(status == "false") {
-                                    var list = $("#showContentList");
-                                    var afterStatus = true;
-                                    message = "确定上架该卖家秀内容模板？";
-                                    //                    alert(list);
-                                    if(countModel == 4 && list !== null && list !== undefined) {
-                                    message = "最多上架4个，需选择下面某个模版下架才可上架此模版";
-                                    layer.open({
-                                    title: [message, 'font-size:15px;padding:0 0 0 15px'],
-                                [@compress single_line = true]
-                                    content:'<table>
-                                    [#if showContentList??]
-                                        [#list showContentList as showContent]
-                                            [#if showContent_index = 0]
-                                            <tr>
-                                            <td class=\"myButton\"><button data-id=\"${showContentList[showContent_index].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[showContent_index].content?html, 14, "...")}<\/button>
-                                                <\/td>
-                                            [/#if]
-                                            [#if showContent_index = 1]
-                                            <td class=\"myButton\"><button data-id=\"${showContentList[showContent_index].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[showContent_index].content?html, 14, "...")}<\/button>
-                                                <\/td>
-                                                <\/tr>
-                                            [/#if]
-                                            [#if showContent_index = 2]
-                                            <tr>
-                                            <td class=\"myButton\"><button data-id=\"${showContentList[showContent_index].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[showContent_index].content?html, 14, "...")}<\/button>
-                                                <\/td>
-                                            [/#if]
-                                            [#if showContent_index = 3]
-                                            <td class=\"myButton\"><button data-id=\"${showContentList[showContent_index].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[showContent_index].content?html, 14, "...")}<\/button>
-                                                <\/td>
-                                                <\/tr>
-                                            [/#if]
-                                        [/#list]
-                                    [/#if]
-                                    <\/table>',
-                                [/@compress]
-                                    area: ['400px','225px'],
-                                    closeBtn: 0,
-                                    })
-                                    return false;
-                                    }
+                                        var list = $("#showContentList");
+                                        var afterStatus = true;
+                                        message = "确定上架该卖家秀内容模板？";
+                                        //                    alert(list);
+                                        if(countModel == 4 && list !== null && list !== undefined) {
+                                            message = "最多上架4个，需选择下面某个模版下架才可上架此模版";
+                                            layer.open({
+                                                title: [message, 'font-size:15px;padding:0 0 0 15px'],
+                                                [@compress single_line = true]
+                                                content:'<table>
+                                                [#if showContentList??]
+                                                    [#list showContentList as showContent]
+                                                        [#if showContent_index = 0]
+                                                        <tr>
+                                                        <td class=\"myButton\"><button data-id=\"${showContentList[showContent_index].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[showContent_index].content?html, 14, "...")}<\/button>
+                                                            <\/td>
+                                                        [/#if]
+                                                        [#if showContent_index = 1]
+                                                        <td class=\"myButton\"><button data-id=\"${showContentList[showContent_index].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[showContent_index].content?html, 14, "...")}<\/button>
+                                                            <\/td>
+                                                            <\/tr>
+                                                        [/#if]
+                                                        [#if showContent_index = 2]
+                                                        <tr>
+                                                        <td class=\"myButton\"><button data-id=\"${showContentList[showContent_index].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[showContent_index].content?html, 14, "...")}<\/button>
+                                                            <\/td>
+                                                        [/#if]
+                                                        [#if showContent_index = 3]
+                                                        <td class=\"myButton\"><button data-id=\"${showContentList[showContent_index].id}\" onclick="changeFlag(this)">${abbreviate(showContentList[showContent_index].content?html, 14, "...")}<\/button>
+                                                            <\/td>
+                                                            <\/tr>
+                                                        [/#if]
+                                                    [/#list]
+                                                [/#if]
+                                                <\/table>',
+                                                [/@compress]
+                                                area: ['400px','225px'],
+                                                closeBtn: 0,
+                                            });
+                                            return false;
+                                        }
                                     }
                                     layer.confirm(message, {icon: 3, title:'提示'},function (index) {
-                                    $("#flag").val(afterStatus);
-                                    $("#id").val(id);
-                                    //                    $("#updateModelContent").val(content);
-                                    $("#updateShowModelFlag").submit();
-                                    layer.close(index);
+                                        $("#flag").val(afterStatus);
+                                        $("#id").val(id);
+                                        //                    $("#updateModelContent").val(content);
+                                        $("#updateShowModelFlag").submit();
+                                        layer.close(index);
                                     })
                                 });
 
@@ -1637,7 +1637,7 @@ ${tyreBrand.tyreInsFlag?string("是", "否")}转换boolean为对应字符串
 
 
 
-**       //标签
+**       //标签REGEXP
         if(CollectionUtils.isNotEmpty(searchDto.getLabel())){
             c.andCondition("label REGEXP replace('"+ LabelEnum.getLabelStrs(searchDto.getLabel())+"',',','|') ");
         } else if (null != searchDto.getLabelEnum()) {
@@ -1649,7 +1649,7 @@ ${tyreBrand.tyreInsFlag?string("是", "否")}转换boolean为对应字符串
         结果：修改DTO的getter和setter方法后，List数据不再丢失
 
 
-****解决emoji表情的数据库输入问题：先设置数据库对应字段（列）的字符集为UTF8MB4，然后service层，在进行数据库插入和更新操作前设置sql语句“SET NAMES 'utf8mb4'”
+****解决emoji表情的数据库存取问题：先设置数据库对应字段（列）的字符集为utf8mb4，然后service层，在进行数据库插入和更新操作前设置sql语句“SET NAMES 'utf8mb4'”
       更新时：
             storeShowMapper.setUTF8MB4();
             storeShowMapper.updateByPrimaryKey(show);
@@ -1742,3 +1742,66 @@ public interface BaseMapper<T> extends Mapper<T>, MySqlMapper<T> {
             },
         },
     });
+
+
+**对日期进行，split切割成字符串数组，然后对日期字符串转成数值进行加减操作：
+                方法：切割日期：split(separator);
+                      字符串转成数值：parserInt(string, 10);这里的10是10进制的意思或者在字符串前加 "+"即可
+                      判断是否是非数字值：isNaN(object); object是必需的，object为要检测的值，如果object不为数字，则isNaN(object)为true
+
+                                具体代码如下：
+                                1.body中：
+                                <tr>
+                                    <th>
+                                        ${message("admin.storeActivityModel.activityStartDate")}:
+                                    </th>
+                                    <td id="begin">
+                                        <input type="text" id="beginDate" value="${beginDay}"
+                                               class="text Wdate"
+                                               onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd', maxDate: '#F{$dp.$D(\'endDate\')}'});"/>
+                                    [#--<input type="text" id="beginTime" value="${beginTime}"--]
+                                    [#--class="text Wdate"--]
+                                    [#--onfocus="WdatePicker({dateFmt: 'HH:mm'});"/>--]
+                                    </td>
+                                 </tr>
+                                                        <tr>
+                                    <th>
+                                        ${message("admin.storeActivityModel.activityEndDate")}:
+                                    </th>
+                                    <td id="end">
+                                        <input type="text" id="endDate" value="${endDay}" class="text Wdate"
+                                               onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd', minDate: '#F{$dp.$D(\'beginDate\')}'});"/>
+                                    [#--<input type="text" id="endTime" value="${endTime}" class="text Wdate"--]
+                                    [#--onfocus="WdatePicker({dateFmt: 'HH:mm'});"/>--]
+                                    </td>
+                                 </tr>
+                                2.js中：
+                                $("#viewBtn").click(function () {
+                                    var $beginDay = $("#begin").children(":eq(0)").val();//获取id="begin"标签的第一个 孩子的 值
+                                    var $endDay = $("#end").children(":eq(0)").val();
+
+                                    var beginTm = $beginDay + " 00:00";
+                                    var endTm = $endDay + " 00:00";
+                                    var arr = $endDay.split("-");
+                                    var nextDay = +arr[2] + 1;
+                                    if(!isNaN(nextDay)) {
+                                        endTm = arr[0] + "-" + arr[1] + "-" + nextDay + " 00:00";
+                                    }
+                                    var $title = $("#title").val();
+                                    var $content = $("#content").val();
+                                    var $photoUrl = $("#photoUrl").val();
+
+                                    layer.open({
+                                        title: ['门店活动案例','font-size:15px;color:#ffffff;text-align:center;margin:auto;display:block;padding:0 20px;background-color:#CD4344'],
+                                        area: ['385px','460px'],
+                                        closeBtn: 0,
+                                        [@compress single_line = true]
+                                            content: '
+                                        <div><strong>'+$title+'<\/strong><\/div style=\"height:10%\">
+                                        <div style=\"height:45%\"><img src=\"'+ $photoUrl +'\" width=\"100%\" height=\"100%\"><\/div>
+                                        <div><span style=\"font-size:13px\">${message("admin.storeActivity.startAndEndDate")}<\/span> :
+                                        <span style=\"font-size:13px\">' +beginTm+ ' — '+endTm+'<\/span><\/div style=\"height:10%\">
+                                        <div style=\"height:35%\"><p>'+$content+'<\/p><\/div>',
+                                        [/@compress]
+                                    })
+                                });
