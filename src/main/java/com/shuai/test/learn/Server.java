@@ -44,7 +44,7 @@ public class Server {
                 }
                 System.out.println("fro client:" + sb);
                 //传递给客户端
-                pw.write("Hello Client!");
+                pw.write("Hello ClientTest!");
                 pw.write("eof\n");
                 pw.flush();
             } catch (Exception e) {

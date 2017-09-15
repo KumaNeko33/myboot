@@ -571,7 +571,7 @@ class SerializableObject implements Serializable {
  */
 
 /*
-7、装饰模式（Decorator）:可以有效的替代继承
+7、装饰模式（Decorator）:可以有效的替代继承，装饰对象
 
 顾名思义，装饰模式就是给一个对象增加一些新的功能，而且是动态的，要求装饰对象和被装饰对象实现同一个接口，装饰对象持有被装饰对象的实例，关系图如下：
 
@@ -583,7 +583,7 @@ Source类是被装饰类，Decorator类是一个装饰类，可以为Source类�
 public interface SourceAble {
     public void method();
 }
-public class Source extends SourceAble{
+public class Source implements SourceAble{
     @Override
     public void method(){
         System.out.println("the original method!");
@@ -636,7 +636,7 @@ after decorator!
 实际运用：字节、字符流操作对象InputStream，BufferReader,FileInputStream等
  */
 /*
-8、代理模式（Proxy）
+8、代理模式（Proxy）:代理类
 
 其实每个模式名称就表明了该模式的作用，代理模式就是多一个代理类出来，替原对象进行一些操作，比如我们在租房子的时候回去找中介，为什么呢？因为你对该地区房屋的信息掌握的不够全面，希望找一个更熟悉的人去帮你做，此处的代理就是这个意思。再如我们有的时候打官司，我们需要请律师，因为律师在法律方面有专长，可以替我们进行操作，表达我们的想法。先来看看关系图：
 
