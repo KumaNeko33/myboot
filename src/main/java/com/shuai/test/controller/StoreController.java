@@ -248,16 +248,20 @@ public class StoreController implements Sorter{
         int i, j;
         int insert;
         for (i = 1; i < arr.length; i++) {
-            insert = arr[i];
+            insert = arr[i];//把队伍最后一个位置的值拎出来，但它的位置还是原本的值，从后往前遍历找到队伍中适合它的位置插进去，
+            //第一次比较，内循环判断中如果它比前一个值小，则在内循环中前一个大值站到它原本的位置上，它则在内循环结束后站到第一个位置上。
+            //后面的每次外循环比较，都是这样，把当前队伍最后一个位置的值拎出来，一个一个往前和前面的值比较，比它大的往后站一个位置，这时腾出一个位置，insert再与前一个值比较，
+            // 如果这时前面的和它一样高或者矮的，它就站到腾出的位置上。
             j = i - 1;
             while (j >= 0 && insert < arr[j]) {//轮询队列，左大于右的话，将左的值赋给右位置，保证右边的比左边大，直到相等或小于时进行插入
-                arr[j + 1] = arr[j];
-                j--;
+                arr[j + 1] = arr[j];//每次比较，把大的值arr[j]往右位置挪，这时腾出一个位置，这样i个位置不会减少，
+                j--;//这时腾出一个位置，insert再准备与前一个值比较，
             }
-            arr[j + 1] = insert;
+            arr[j + 1] = insert;//根据前一个比自己矮或者相等的位置j找到空位j+1插入。每次循环找到一个位置来安放arr[i];即插入队伍
 //            display(arr);
         }
     }
+
 
     public static void insertSort2(int[] arr) {
 //        int in = 1;

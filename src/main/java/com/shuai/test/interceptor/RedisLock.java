@@ -110,7 +110,8 @@ public class RedisLock {
     SETNX 是『SET if Not eXists』(如果不存在，则 SET)的简写
 返回值：
 　　设置成功，返回 1 。
-　　设置失败，返回 0 。*/
+　　设置失败，返回 0 。
+     */
     private boolean setNX(final String key, final String value) {
         Object obj = null;
         try {

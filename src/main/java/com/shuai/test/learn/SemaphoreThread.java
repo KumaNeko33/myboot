@@ -116,4 +116,15 @@ public class SemaphoreThread {
         SemaphoreThread test = new SemaphoreThread();
         test.useThread();
     }
+    /*
+    semaphore = new Semaphore(350);
+    try(!semaphore.tryAcquire()){
+        return "error";
+    }
+    try{
+        execute();
+    }finally{
+        semaphore.release();
+    }
+     */
 }
