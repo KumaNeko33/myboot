@@ -176,10 +176,10 @@ public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
     private String getIpAddress(HttpServletRequest request) {
         String ip = request.getHeader("x-forwarded-for");
         if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("Proxy-ClientTest-IP");
+            ip = request.getHeader("Proxy-DynamicProxyTest-IP");
         }
         if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("WL-Proxy-ClientTest-IP");
+            ip = request.getHeader("WL-Proxy-DynamicProxyTest-IP");
         }
         if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getHeader("HTTP_CLIENT_IP");
