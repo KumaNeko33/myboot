@@ -17,7 +17,7 @@ public class TestReflection {
 
         try {
             //通过类 直接获取实例对象:由于默认返回的是Object类型，需要类型转换：
-            MethodClass method = (MethodClass) c.newInstance();
+            MethodClass mt = (MethodClass) c.newInstance();
 
             //通过类 获取类中的不包括继承的所有方法：
             Method[] methods = c.getDeclaredMethods();
@@ -39,7 +39,7 @@ public class TestReflection {
             System.out.println("----------------------------------");
 
             //通过类 获取方法后，即可用Method的invoke()方法来调用这些方法：需要类的 实例对象和方法参数（如果需要的话）
-            Object addResult = namedMethod.invoke(method, 1, 4);//这里调用类MethodClass的public权限的add方法，传入参数为1和4,
+            Object addResult = namedMethod.invoke(mt, 1, 4);//这里调用类MethodClass的public权限的add方法，传入参数为1和4,
             //invoke()方法里会进行权限检验，如果override=true表示忽略权限校验，直接调用方法，若override=false，继续校验：若方法的public则权限校验通过，
             // 不然继续校验（这时可能会打破private的封装性）：如果传入的实例method的类型Class caller==通过这个nameMethod方法获得的类型Class clazz，则权限校验通过，
 //            若未通过，则创建一个缓存，中间再进行一堆检查（比如检验是否为protected属性）。
