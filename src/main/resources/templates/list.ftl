@@ -1641,12 +1641,17 @@ ${tyreBrand.tyreInsFlag?string("是", "否")}转换boolean为对应字符串
         if(CollectionUtils.isNotEmpty(searchDto.getLabel())){
             c.andCondition("label REGEXP replace('"+ LabelEnum.getLabelStrs(searchDto.getLabel())+"',',','|') ");
         } else if (null != searchDto.getLabelEnum()) {
-            c.andCondition("label REGEXP ", searchDto.getLabelEnum()); //andCondition为自定义条件，而REGEXP 指数据库字符串label包含 后面的字符串的 所有记录
+            c.andCondition("label REGEXP ", searchDto.getLabelEnum()); //andCondition为自定义条件，而REGEXP是Mysql里的正则匹配， 指数据库字符串label匹配 后面的字符串的 所有记录
+            //如pi|apa表示匹配pi或匹配apa，如:
+                                mysql> select "pi" REGEXP "pi|apa"; -> 1（表示匹配）
+                                mysql> select "axe" REGEXP "pi|apa"; -> 0（表示不匹配）
+                                mysql> select "apa" REGEXP "pi|apa"; -> 1（表示匹配）
         }
 
 ****问题：传输数据用的DTO, 原本DTO的List属性（存的Enum枚举数据，即List<LabelEnum>）是有值的，调用RPC接口后，在RPC接口实现类中，传过来的DTO对象的List数据丢失，变成NULL
     试了好久，才发现真正原因是DTO的getter和setter方法有问题：删除原本的getter和setter方法，用alt+insert重新创建。理由不明
-        结果：修改DTO的getter和setter方法后，List数据不再丢失
+        结果：修改DTO的getter和setter方法后，List数据不再丢失，但是切换分之后，该方法又失效，于是采用方法二：
+        方法二：修改DTO，增加String label字段来传递打标的搜索条件（因为是单个标签搜索）
 
 
 ****解决emoji表情的数据库存取问题：先设置数据库对应字段（列）的字符集为utf8mb4，然后service层，在进行数据库插入和更新操作前设置sql语句“SET NAMES 'utf8mb4'”
@@ -1726,7 +1731,7 @@ public interface BaseMapper<T> extends Mapper<T>, MySqlMapper<T> {
 
     $("#labelForm").validate({ //表单验证内容
         errorPlacement:function(error,element){
-            error.appendTo(".dialogTitle"); //错误提示信息展示的位置， .appendTo(selector)是jQuery方法，在被选元素的结尾（仍然在元素内部）插入指定内容。可以是选择器
+            error.appendTo(".dialogTitle"); //错误提示信息展示的位置， .appendTo(selector)是jQuery方法，在被选元素的结尾（仍然在元素内部）插入指定内容。可以是任意选择器
                                         //这里的.dialogTitle是dialog弹窗的标题，于是我把提示信息插到 标题后面，显而易见。
         },
         rules: {
@@ -1805,3 +1810,24 @@ public interface BaseMapper<T> extends Mapper<T>, MySqlMapper<T> {
                                         [/@compress]
                                     })
                                 });
+
+
+**使用list和set之间的转换达到集合元素去重：我的测试见 domain 文件夹下的ListSetConvert.java
+Set与List之间转化：
+    List list = new ArrayList(set);
+    Set set = new HashSet(list);
+    //但是有一点,转换当中可能要丢失数据,尤其是从list转换到set的时候,因为set不能有重复数据 //还有转换到set之后,他们原先在list上的顺序就没了,
+public class Csdn {
+    public static void main(String[] args) {
+        List<String> list = new ArrayList<String>();
+        Collections.addAll(list, "zhao","long","ri","zhao");//填充
+        Set<String> set=new HashSet<String>();
+        set.addAll(list);//给set填充，这时重复的数据"zhao"将只剩一个
+        list.clear();//清空list，不然下次把set元素加入此list的时候是在原来的基础上追加元素的
+        list.addAll(set);//把set的内容填充给list
+    }
+ }
+
+**<a href="#" class="viewActivityModel" onclick="viewActivityModel('${storeActivity.title?html}','${storeActivity.beginTm?string("yyyy-MM-dd")}','${storeActivity.endTm?string("yyyy-MM-dd")}','${storeActivity.photoUrl}','${storeActivity.content?html?replace("\r\n","<br>")?replace("\n","<br>")}')">
+        调用js方法传递参数时：参数如果含有回车符如"\r\n"或"\n"等，将无法正常调用，页面出错，这时需要将参数里的"\r\n"和"\n"替换replace成"<br>"换行标签即可。
+                freemarker的话使用?replace("\r\n","<br>")?replace("\n","<br>");
