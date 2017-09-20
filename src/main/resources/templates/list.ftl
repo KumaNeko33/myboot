@@ -1671,7 +1671,12 @@ public interface BaseMapper<T> extends Mapper<T>, MySqlMapper<T> {
     public void setUTF8MB4();
 }
 
-
+--查看字符集的字节大小
+ show character set;
+--设置mysql的特定字符集
+SET character_set_server=utf8mb4;
+--查看db（数据库）的字符集，
+show variables like '%char%';
 
 ****dialog弹窗的非空验证，验证不通过时不关闭弹窗，且是对单选框的非空验证：
          1.body层：
@@ -1831,3 +1836,85 @@ public class Csdn {
 **<a href="#" class="viewActivityModel" onclick="viewActivityModel('${storeActivity.title?html}','${storeActivity.beginTm?string("yyyy-MM-dd")}','${storeActivity.endTm?string("yyyy-MM-dd")}','${storeActivity.photoUrl}','${storeActivity.content?html?replace("\r\n","<br>")?replace("\n","<br>")}')">
         调用js方法传递参数时：参数如果含有回车符如"\r\n"或"\n"等，将无法正常调用，页面出错，这时需要将参数里的"\r\n"和"\n"替换replace成"<br>"换行标签即可。
                 freemarker的话使用?replace("\r\n","<br>")?replace("\n","<br>");
+
+/*
+$.getJSON( )的使用方法简介
+JSON（JavaScript Object Notation）即JavaScript对象表示法，是一种轻量级的数据交换格式。它非常便于编程人员对数据的处理，也便于机器对数据的解析和生成，应用非常广泛。
+json文件可以保存为“test.json”这样的文件，json数据的一般格式如下（“{ }”中的为对象，“[ ]”中的为数组）。
+
+jQuery中的$.getJSON( )方法函数主要用来从服务器加载json编码的数据，它使用的是GET HTTP请求。使用方法如下：
+
+$.getJSON( url,  [data], [success(data, textStatus, jqXHR)] )
+
+url是必选参数，表示json数据的地址；
+data是可选参数，用于请求数据时发送数据参数；
+success是可参数，这是一个回调函数，用于处理请求到的数据。
+
+获取json数据举例：
+
+$.getJSON('test.json', function(data){
+   for (var i = 0; i < data.rows.length; i++) {
+      $('#test').append('<p>' + data.rows[i].realName + '</p>');
+    }
+});
+*/
+
+
+***validate.js验证中验证成功后或是再次验证时移除错误信息：
+                                $("label[for='tiresId']").remove();
+                                $("label[for='price']").remove(); //移除指定的label标签：使用label[for='label附着的标签id'].remove()
+                                $("#price").removeClass("fieldError");
+
+**select2的功能分析：
+                                $tyreSpecId.html('<option value="'+tyreSpecId+'">'+tyreSpecName+'</option>');//初始化时添加默认值，//新版，直接给select添加option$("#id").append(new Option("Jquery", 10001, false, true));//或者$("#id").append("<option value='10001'>Jquery</option>");
+                                $tyreSpecId.select2({
+                                    placeholder: '请选择轮胎规格',
+                                [#--allowClear:true 允许清除选择的下拉框，但是无法清除初始化时设置的默认值--]
+                                [#--multiple: true 启用多选--]
+                                    ajax: {
+                                        url: "findTires.cgi",
+                                        dataType: 'json',
+                                        delay: 250,
+                                        data: function (params) {
+                                            return {
+                                                keyword: params.term,
+                                                pageNumber: params.page,
+                                            };
+                                        },
+                                        processResults: function (data, params) { //点击select下拉框后的 加载数据过程
+                                            params.page = params.page || 1;
+                                            return {
+                                                results: data.items,
+                                                pagination: {
+                                                    more: params.page < data.totalPage
+                                                }
+                                            };
+                                        },
+                                        cache: true
+                                    },
+                                    escapeMarkup: function(markup){ //点击select下拉框后加载数据时 显示的内容，如可以返回“加载中”
+                                        return markup;
+                                    },
+                                    templateResult: function(item){ //点击select下拉框后 加载数据后的动作，如将数据展示到下拉列表
+                                        if(item.loading){
+                                            return item.text;
+                                        }
+                                        return '<p>'+item['text']+'</p>';
+                                    },
+                                    templateSelection: function(repo){ //选择下拉框内容后 回填的值
+                                        return repo.text;
+                                    }
+                                });
+                                获取或设置值：
+                                    五.获取选中项
+                                    var res=$("#c01-select").select2("data")[0] ; //单选
+                                    var reslist=$("#c01-select").select2("data");    //多选
+                                    if(res==undefined)
+                                    {
+                                        alert("你没有选中任何项");
+                                    }
+                                    if(reslist.length)
+                                    {
+                                        alert("你选中任何项");
+                                    }
+                                停用或启用：$("select").enable(false);（老版）；$("select").prop("disabled", true);（新版）
