@@ -338,16 +338,74 @@ public class StoreController implements Sorter{
         }
     }
 
-    //二叉 查找/排序 树：二叉搜索树又称为二叉查找树，二叉排序树BST（Binary Search/Sort Tree），是满足以下条件的二叉树：
-    // 1.左子树上的所有节点值均小于根节点值，
-    // 2右子树上的所有节点值均不小于根节点值，
-    // 3，左右子树也满足上述两个条件。（左小右大）
-    //    如果二叉排序树是平衡的，则n个节点的二叉排序树的高度为Log2n+1,其查找效率为O(log2n)，即O(logN)近似于折半查找。
-//    如果二叉排序树完全不平衡，则其深度可达到n，查找效率为O(n)，退化为顺序查找。
-//    一般的，二叉排序树的查找性能在O(logN)到O(n)之间。因此，为了获得较好的查找性能，就要构造一棵平衡的二叉排序树。
+    /*二叉 查找/排序 树：二叉搜索树又称为二叉查找树，二叉排序树BST（Binary Search/Sort Tree），是满足以下条件的二叉树：
+     1.左子树上的所有节点值均小于根节点值，
+     2右子树上的所有节点值均不小于根节点值，
+     3，左右子树也满足上述两个条件。（左小右大）
+        如果二叉排序树是平衡的，则n个节点的二叉排序树的高度为Log2n+1,其查找效率为O(log2n)，即O(logN)近似于折半查找。
+    如果二叉排序树完全不平衡，则其深度可达到n，查找效率为O(n)，退化为顺序查找。
+    BST的查找操作：
+    T key = a search key
+    Node root = point to the root of a BST
 
-    //二叉搜索树的后序遍历序列
-/*    【题目】输入一个整数数组，判断该数组是不是某二叉搜索树的后序遍历的结果。如果是则输出Yes,否则输出No。假设输入的数组的任意两个数字都互不相同。
+    while(true){
+        if(root == null){
+            break;
+        }
+        if(key.equals(root.value)){
+            return root;
+        }else if(key.compareTo(root.value) < 0){
+            root = root.left;
+        }else{
+            root = root.right;
+        }
+    }
+    return null;
+    从程序中可以看出，当BST查找的时候，先与当前节点进行比较：
+如果相等的话就返回当前节点；
+如果少于当前节点则继续查找当前节点的左节点；
+如果大于当前节点则继续查找当前节点的右节点。
+直到当前节点指针为空或者查找到对应的节点，程序查找结束。
+
+    BST的插入操作：
+    Node node = create a new node with specify value
+    Node root = point the root of a BST
+    Node parent = null;
+    //find the parent node to append the new node
+    while(true){
+        if(root == null){
+            break;
+        }
+        parent = root;
+        if(node.value.compareTo(root.value) <= 0){
+            root = root.left;
+        }else{
+            root = root.right;
+        }
+    }
+    if(parent != null){
+        if(node.value.compareTo(parent.value) <= 0){//新插入结点的值小于父节点的值，插到父节点左边
+            parent.left = node;
+        }else{//新插入结点的值大父节点的值，插到父节点右边
+            parent.right = node;
+        }
+    }else{
+        root = node;//parent=null说明根结点为空,新结点插到根结点处
+    }
+    插入操作先通过循环查找到待插入的节点的父节点，和查找父节点的逻辑一样，都是比大小，小的往左，大的往右。
+    找到父节点后，对比父节点，小的就插入到父节点的左节点，大就插入到父节点的右节点上。
+
+    BST的删除操作：
+    删除操作的步骤如下：
+        查找到要删除的节点。（和查找操作逻辑一样）
+        如果待删除的节点是叶子节点，则直接删除。
+        如果待删除的节点不是叶子节点，则先找到待删除节点的中序遍历的后继节点，用该后继节点的值替换待删除的节点的值，然后删除后继节点。
+
+一般的，二叉排序树的查找性能在O(logN)到O(n)之间。因此，为了获得较好的查找性能，就要构造一棵平衡的二叉排序树。平衡二叉查找树（Balanced Binary Search/Sort Tree）的实现有好几种，主要的是AVL树和红黑树
+*/
+
+/*     二叉搜索树的后序遍历序列
+   【题目】输入一个整数数组，判断该数组是不是某二叉搜索树的后序遍历的结果。如果是则输出Yes,否则输出No。假设输入的数组的任意两个数字都互不相同。
     后序遍历的顺序：左右根
 
     二叉搜索树左子树的值小于结点值，右子树的值大于结点值
@@ -425,7 +483,7 @@ public class StoreController implements Sorter{
 //    3.哈希表/散列表的查找步骤：
 //    当存储记录时，通过散列函数计算出记录（数据内容key）的散列地址（数据存放地址）
 //    当查找记录时，我们通过同样的是散列函数计算记录的散列地址，并按此散列地址访问该记录
-
+//得到键key的hashcode,再经过hash算法后得到哈希桶数组下标
 //    4.关键字——散列函数（哈希函数）——散列地址
 //    优点：一对一的查找效率很高；
 //    缺点：一个关键字可能对应多个散列地址；需要查找一个范围时，效果不好。
@@ -445,7 +503,7 @@ public class StoreController implements Sorter{
 //哈西冲突：
 //    哈西冲突的解决办法：平方探测再散列中：当bucketIndex-1^2 < 0时，会放到哈希表Entry[] table最后一个位置
 //    哈希表为解决冲突，可以采用开放地址法和链地址法等来解决问题，Java中HashMap采用了链地址法。链地址法，简单来说，就是数组加链表的结合。
-//    哈希表Entry[] table在java1.8中，改成Node[] table
+//    哈希表Entry[] table在java1.8中，改成Node[] table，下面是Node的结构：
 // static class Node<K,V> implements Map.Entry<K,V> {
 //    final int hash;    //用来定位数组索引位置
 //    final K key;
@@ -470,17 +528,20 @@ public class StoreController implements Sorter{
 //    所以就需要在空间成本和时间成本之间权衡，其实就是在根据实际情况确定哈希桶数组的大小，并在此基础上设计好的hash算法减少Hash碰撞。
 //    那么通过什么方式来控制map使得Hash碰撞的概率又小，哈希桶数组（Node[] table）占用空间又少呢？答案就是好的Hash算法和扩容机制。
 //    即使负载因子和Hash算法设计的再合理，也免不了会出现拉链过长的情况，一旦出现拉链过长，则会严重影响HashMap的性能,因为链表的查询速度比较慢，链表长,就需要循环链表。
-//    于是，在JDK1.8版本中，对数据结构做了进一步的优化，引入了红黑树。而当链表长度太长（默认超过8）时，链表就转换为红黑树，
-//    利用红黑树快速增删改查的特点O(logN)提高HashMap的性能，其中会用到红黑树的插入、删除、查找等算法。
+//    于是，在JDK1.8版本中，对数据结构做了进一步的优化，引入了红黑树。而当链表长度太长（默认超过8）且capacity>64时，链表就转换为红黑树，
+//    利用红黑树快速增删改查的特点O(logN)提高HashMap（采用数组加链表(即哈希表)时的时间复杂度最好时是O(N))的性能，其中会用到红黑树的插入、删除、查找等算法。
 
 //    针对上面的扩展：随着HashMap中元素的数量越来越多，发生碰撞的概率就越来越大，所产生的链表长度就会越来越长，这样势必会影响HashMap的速度
 //            (为啥呢，原来是直接找到数组的index就可以直接根据key取到值了，但是冲突严重，也就是说链表长，那就得循环链表了，时间就浪费在循环链表上了，也就慢了)，
-//    为了保证HashMap的效率，系统必须要在某个临界点进行扩容处理。该临界点在当HashMap中元素的数量等于table数组长度*加载因子。
+//    为了保证HashMap的效率，系统必须要在某个临界点进行扩容处理。该临界点在当HashMap中元素的数量等于table数组长度*加载因子=length*0.75
 //    但是扩容是一个非常耗时的过程，因为它需要重新计算这些数据在新table数组中的位置并进行复制处理。
-//    所以如果我们已经预知HashMap中元素的个数，那么预设元素的个数能够有效的提高HashMap的性能。
+//    所以如果我们已经预知HashMap中元素的个数，那么预设元素的个数能够有效的提高HashMap的性能。如HashMap<T> map = new HashMap<>(16);
 
 //    resize()扩容的时候，方法里又将Entry链的顺序反转了
 
+/*    红黑树RBTree(Red Black Tree)：
+
+*/
 }
 
 
