@@ -1918,3 +1918,19 @@ $.getJSON('test.json', function(data){
                                         alert("你选中任何项");
                                     }
                                 停用或启用：$("select").enable(false);（老版）；$("select").prop("disabled", true);（新版）
+
+**清空select2自己设置的默认值：$tyreSpecId.html('<option value="'+tyreSpecId+'">'+tyreSpecName+'</option>');里的内容，方法如下：
+
+                                $tyreSpecId.on("select2:unselect", function (evt) {
+                                    //这里是取消选中触发的事件
+                                    //如配置allowClear: true后，触发
+                                    $("#tyreSpecId").html("");
+                                    var str=$("<span class='select2-selection__placeholder'>请选择轮胎规格</span>");
+                                    $("#select2-tyreSpecId-container").attr("title","");
+                                    $("#select2-tyreSpecId-container").empty();
+                                    $("#select2-tyreSpecId-container").prepend(str);
+                                });
+**清空select2的用户选择值：方法一：设置allowClear: true属性，即会出现一个小"x"，点击后清空，但是如果本来就有默认值，则恢复成默认值
+                            方法二：定义自定义按钮清空：<button id="clear">清空</button>  $("#clear").click(function(){ $(#下拉框的id).select2("val",""); });
+
+**类的静态属性和方法，跟普通的成员属性和方法，其最终的区别就在于前者是伴随着类定义的装载就完成初始化并提供直接访问了。
